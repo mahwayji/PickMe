@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  push:
+    branches: [ "**" ]
+  pull_request:
+    branches: [ "**" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      mongo:
+        image: mongo:6
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd="mongosh --eval 'db.adminCommand(\"ping\")'" 
+          --health-interval=10s 
+          --health-timeout=5s 
+          --health-retries=5
+
+    steps:
+      # Checkout repo
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Install Bun
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      # Install deps for frontend
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: bun install
+
+      # Build frontend
+      - name: Build frontend
+        working-directory: frontend
+        run: bun run build
+
+      # Install deps for backend
+      - name: Install backend dependencies
+        working-directory: backend
+        run: bun install
+
+      # Generate Prisma client
+      - name: Generate Prisma client
+        working-directory: backend
+        run: bunx prisma generate
+
+      # Run Prisma migrations
+      - name: Run Prisma migrations
+        working-directory: backend
+        run: bunx prisma migrate deploy
+
+      # Build backend (NestJS)
+      - name: Build backend
+        working-directory: backend
+        run: bun run build
+
+      # (Optional) Run tests
+      - name: Run backend tests
+        working-directory: backend
+        run: bun run test
