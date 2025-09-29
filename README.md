@@ -1,5 +1,5 @@
 # PickMe
-This project is part of CPE334 Software Engineering final project.
+This project is part of CPE334 Software Engineering final project. The project PickMe is intended to be a web-application for user to create and showcase their own achievement for the job application purpose.
 
 ## Pre-requisites
 - Bun
