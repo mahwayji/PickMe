@@ -58,7 +58,7 @@ jobs:
       # Run Prisma migrations
       - name: Run Prisma migrations
         working-directory: backend
-        run: bunx prisma migrate deploy
+        run: bunx prisma db push
 
       # Build backend (NestJS)
       - name: Build backend
