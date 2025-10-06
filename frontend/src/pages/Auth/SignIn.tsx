@@ -1,5 +1,4 @@
 import React from 'react'
-import Loading from '../Loading'
 
 const SignIn : React.FC= () => {
   return (
