@@ -39,11 +39,10 @@ function App() {
                     <Route path = {SIGN_UP_PATH} element={<SignUp />} /> 
               
                     {/* Admin */}
-                    {/* <Route element = {<AdminProtected />}>
+                    <Route element = {<AdminProtected />}>
                       <Route path = {ADMIN_DASHBOARD_PATH} element={<AdminDashBoard />} />         
-                    </Route> */}
+                    </Route>
               
-                                    <Route path = {ADMIN_DASHBOARD_PATH} element={<AdminDashBoard />} />         
                     <Route path = {NOT_FOUND_PATH} element={<NotFound />} />
                     
                 </Routes>
