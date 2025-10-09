@@ -1,3 +1,6 @@
+// ======================================================
+//  Datasource & Generator
+// ======================================================
 generator client {
   provider = "prisma-client-js"
 }
@@ -7,8 +10,272 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ======================================================
+//  Enums
+// ======================================================
+enum profile_visibility {
+  public
+  private
+  friends
+}
+
+enum item_type {
+  text
+  image
+  video
+  link
+}
+
+enum media_type {
+  image
+  video
+  audio
+  document
+}
+
+enum share_status {
+  active
+  revoked
+}
+
+enum target_type {
+  profile
+  section
+  item
+}
+
+enum reaction_type {
+  like
+  love
+  haha
+  wow
+  sad
+  angry
+}
+
+enum notification_type {
+  new_follower
+  comment
+  reaction
+  system
+}
+
+enum notification_channel {
+  email
+  push
+  in_app
+}
+
+// ======================================================
+//  Core Models
+// ======================================================
 model User {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-  name String?
-  isAdmin Boolean
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  fullName        String
+  email           String   @unique
+  profilePicture  String?
+  isAdmin         Boolean
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @default(now())
+
+  oauthAccounts   OauthAccount[]
+  profile         Profile?
+  media           Media[]
+  reactions       Reaction[]
+  notifications   Notification[]
+  feedback        Feedback[]
+  savedFilters    UserSavedFilter[]
+}
+
+model OauthAccount {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String   @db.ObjectId
+  provider      String
+  googleSub     String   @unique
+  accessToken   String?
+  refreshToken  String?
+  linkedAt      DateTime @default(now())
+
+  user          User?    @relation(fields: [userId], references: [id])
+}
+
+model Profile {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String   @unique @db.ObjectId
+  displayName   String?
+  description   String?
+  location      String?
+  contactEmail  String?
+  links         Json?
+  visibility    profile_visibility @default(public)
+  layoutConfig  Json?
+  updatedAt     DateTime @default(now())
+
+  user          User?     @relation(fields: [userId], references: [id])
+  sections      Section[]
+  shareLinks    ShareLink[]
+}
+
+model Section {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  profileId      String   @db.ObjectId
+  title          String?
+  description    String?
+  width          Int?
+  height         Int?
+  orderIndex     Int?
+  coverMediaId   String?  @db.ObjectId
+  coverAlt       String?
+  coverSettings  Json?    @default("{}")
+  updatedAt      DateTime @default(now())
+
+  profile        Profile? @relation(fields: [profileId], references: [id])
+  items          Item[]
+  media          Media[]
+  tags           SectionTag[]
+}
+
+model Item {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  sectionId    String   @db.ObjectId
+  type         item_type
+  title        String?
+  description  String?
+  content      String?
+  orderIndex   Int?
+  updatedAt    DateTime @default(now())
+
+  section      Section? @relation(fields: [sectionId], references: [id])
+  media        Media[]
+  tags         ItemTag[]
+}
+
+// ======================================================
+//  Media
+// ======================================================
+model Media {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  ownerUserId    String   @db.ObjectId
+  sectionId      String?  @db.ObjectId
+  itemId         String?  @db.ObjectId
+  mediaType      media_type
+  fileUrl        String
+  thumbnailUrl   String?
+  fileSize       BigInt?
+  uploadedAt     DateTime @default(now())
+
+  ownerUser      User?     @relation(fields: [ownerUserId], references: [id])
+  section        Section?  @relation(fields: [sectionId], references: [id])
+  item           Item?     @relation(fields: [itemId], references: [id])
+}
+
+// ======================================================
+//  Tags & Discovery
+// ======================================================
+model Tag {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  name          String   @unique
+  description   String?
+  createdAt     DateTime @default(now())
+
+  sectionTags   SectionTag[]
+  itemTags      ItemTag[]
+  tagTrends     TagTrend[]
+}
+
+model SectionTag {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  sectionId   String   @db.ObjectId
+  tagId       String   @db.ObjectId
+
+  section     Section? @relation(fields: [sectionId], references: [id])
+  tag         Tag?     @relation(fields: [tagId], references: [id])
+}
+
+model ItemTag {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  itemId    String   @db.ObjectId
+  tagId     String   @db.ObjectId
+
+  item      Item? @relation(fields: [itemId], references: [id])
+  tag       Tag?  @relation(fields: [tagId], references: [id])
+}
+
+model TagTrend {
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+  tagId            String   @db.ObjectId
+  dateBucket       DateTime
+  postCount        Int      @default(0)
+  reactionCount    Int      @default(0)
+  impressionCount  Int      @default(0)
+
+  tag              Tag?     @relation(fields: [tagId], references: [id])
+}
+
+model UserSavedFilter {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId     String   @db.ObjectId
+  name       String?
+  tagIds     String[]
+  createdAt  DateTime @default(now())
+
+  user       User?    @relation(fields: [userId], references: [id])
+}
+
+// ======================================================
+//  Sharing & Social
+// ======================================================
+model ShareLink {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  profileId    String   @db.ObjectId
+  token        String   @unique
+  status       share_status @default(active)
+  createdAt    DateTime @default(now())
+  revokedAt    DateTime?
+
+  profile      Profile? @relation(fields: [profileId], references: [id])
+  qrcodes      QrCode[]
+}
+
+model QrCode {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  shareLinkId   String   @db.ObjectId
+  imageUrl      String
+  generatedAt   DateTime @default(now())
+
+  shareLink     ShareLink? @relation(fields: [shareLinkId], references: [id])
+}
+
+model Feedback {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  authorUserId   String   @db.ObjectId
+  targetType     target_type
+  targetId       String
+  message        String
+  createdAt      DateTime @default(now())
+
+  authorUser     User?    @relation(fields: [authorUserId], references: [id])
+}
+
+model Reaction {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId         String   @db.ObjectId
+  targetType     target_type
+  targetId       String
+  reactionType   reaction_type
+  createdAt      DateTime @default(now())
+
+  user           User?    @relation(fields: [userId], references: [id])
+}
+
+model Notification {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String   @db.ObjectId
+  type        notification_type
+  channel     notification_channel
+  payload     Json?
+  sentAt      DateTime?
+  readAt      DateTime?
+
+  user        User?    @relation(fields: [userId], references: [id])
 }
