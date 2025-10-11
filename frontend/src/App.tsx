@@ -13,6 +13,7 @@ import NotFound from './pages/NotFound'
 import { axiosInstance } from './lib/axios'
 import ServerDown from './pages/ServerDown'
 import { TooltipProvider } from '@radix-ui/react-tooltip'
+import { CookiesProvider } from 'react-cookie'
 
 function App() {
   const [isServerDown, setServerDown] = useState<boolean>(false)
@@ -27,6 +28,7 @@ function App() {
   
   return (
     <Suspense fallback = {<Loading/>} >
+      <CookiesProvider>
       <TooltipProvider>
         <Toaster />
           <div className = 'flex flex-col min-h-screen'>
@@ -51,6 +53,7 @@ function App() {
               </main>
           </div>
       </TooltipProvider>
+      </CookiesProvider>
     </Suspense>
   
   )

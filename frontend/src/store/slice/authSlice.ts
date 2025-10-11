@@ -8,7 +8,6 @@ export interface UserState {
   firstName: string
   lastName: string
   isAdmin: boolean
-  isSuperAdmin: boolean
 } 
 
 interface AuthState {
@@ -24,10 +23,10 @@ const initialState: AuthState = {
 }
 
 export const login = createAsyncThunk(
-  'auth/login',
-  async ({ username, password }: { username: string; password: string }, { rejectWithValue }) => {
+  'auth/signIn',
+  async ({ email, password }: { email: string; password: string }, { rejectWithValue }) => {
     try {
-      const { data } = await axiosInstance.post('/auth/login', { username, password })
+      const { data } = await axiosInstance.post('/auth/signin', { email, password })
       return data
     } catch (error) {
       if (axios.isAxiosError(error)) {

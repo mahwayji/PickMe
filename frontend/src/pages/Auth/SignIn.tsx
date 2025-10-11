@@ -1,22 +1,56 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { SIGN_UP_PATH } from '@/constants/routes';
+import { SIGN_UP_PATH,BASE_PATH } from '@/constants/routes';
+import axios from 'axios';
+import { toast } from 'sonner';
+import { Link, useNavigate } from 'react-router-dom';
+import { useCookies } from 'react-cookie';
+import { ACCESS_TOKEN } from '@/constants/cookie';
+import { useEffect } from 'react';
+import { login } from '@/store/slice/authSlice';
+import { useAppDispatch } from '@/store/store';
+import { useSelector } from 'react-redux'
 
 const SignIn: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [cookies, setCookie] = useCookies([ACCESS_TOKEN])
+
+  const isAuthenticated = useSelector((state: { auth: { isAuthenticated: boolean; }; }) => state.auth.isAuthenticated);
   // const { signUp, signInWithGoogle } = useAuth();
   // const navigate = useNavigate();
   // const { toast } = useToast();
 
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate(BASE_PATH, { replace: true });
+    }
+  }, [cookies, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-
+      e.preventDefault();
+        setLoading(true);
+        
+        try{
+          const result = await dispatch(login({email, password})).unwrap();
+          setCookie(ACCESS_TOKEN, result.access_token, { path: '/', secure: true, httpOnly: false });
+          toast.success('Sign in successful!');
+          navigate(BASE_PATH, { replace: true });
+        }
+        catch (error) {
+          console.error(email, password); //Testing line to see if values are correct
+          if (axios.isAxiosError(error)) {
+            const errorMessage = error.response?.data?.message || 'Sign in failed'
+            toast.error(errorMessage);
+          } else {
+            toast.error('An unexpected error occurred');
+          }
+        } 
   //   try {
   //     await signIn(email, password);
   //     navigate('/dashboard');
@@ -42,6 +76,7 @@ const SignIn: React.FC = () => {
   //       description: 'Failed to sign in with Google',
   //     });
   //   }
+        setLoading(false);
   };
 
   return (
@@ -127,6 +162,5 @@ const SignIn: React.FC = () => {
     </div>
   );
 }
-
 
 export default SignIn
