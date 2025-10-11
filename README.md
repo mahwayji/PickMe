@@ -10,7 +10,7 @@ This project is part of CPE334 Software Engineering final project. The project P
 ### env
 create `.env` file inside backend folder with following code
 ```
-DATABASE_URL = "mongodb://<name>:<password>@localhost:27017/PickMePickMe?authSource=admin
+DATABASE_URL = "mongodb://<name>:<password>@localhost:27017/PickMe?authSource=admin&replicaSet=rs0"
 ```
 
 ### Development
