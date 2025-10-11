@@ -11,4 +11,27 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+
+  server: {
+    port: 3000,
+    proxy: {
+      '/api/v2': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+        secure: false
+      },
+    },
+  },
+
+  preview: {
+    host:'0.0.0.0',
+    port:8000,
+    proxy: {
+      '/api/v2': {
+        target: 'https//pickme.cloud',
+        changeOrigin: true,
+        secure: true
+      }
+    }
+  }
 })

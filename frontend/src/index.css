@@ -95,9 +95,6 @@
   .text-foreground {
     color: hsl(var(--foreground));
   }
-  .bg-background {
-    background-color: hsla(var(--background) / 0.5);
-  }
 }
 
 html, body, #app div {

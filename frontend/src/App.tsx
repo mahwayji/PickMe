@@ -10,9 +10,9 @@ import SignIn from './pages/Auth/SignIn'
 import SignUp from './pages/Auth/SignUp'
 import AdminDashBoard from './pages/Admin/DashBoard'
 import NotFound from './pages/NotFound'
-import AdminProtected from './components/utils/AdminProtected'
 import { axiosInstance } from './lib/axios'
 import ServerDown from './pages/ServerDown'
+import { TooltipProvider } from '@radix-ui/react-tooltip'
 
 function App() {
   const [isServerDown, setServerDown] = useState<boolean>(false)
@@ -27,27 +27,30 @@ function App() {
   
   return (
     <Suspense fallback = {<Loading/>} >
-      <Toaster />
-        <div className = 'flex flex-col min-h-screen'>
-            <main className = "flex-1">
-                <Routes>
-                    <Route path = {BASE_PATH} element = {<Home/>} />
-              
-                    <Route path = {PROFILE_INFO_PATH} element = {<Profile />} />
-              
-                    <Route path = {SIGN_IN_PATH} element={<SignIn />} />
-                    <Route path = {SIGN_UP_PATH} element={<SignUp />} /> 
-              
-                    {/* Admin */}
-                    <Route element = {<AdminProtected />}>
+      <TooltipProvider>
+        <Toaster />
+          <div className = 'flex flex-col min-h-screen'>
+              <main className = "flex-1">
+                  <Routes>
+                      <Route path = {BASE_PATH} element = {<Home/>} />
+                
+                      <Route path = {PROFILE_INFO_PATH} element = {<Profile />} />
+                
+                      <Route path = {SIGN_IN_PATH} element={<SignIn />} />
+                      <Route path = {SIGN_UP_PATH} element={<SignUp />} /> 
+                
+                      {/* Admin */}
+                      {/* <Route element = {<AdminProtected />}>
+                        <Route path = {ADMIN_DASHBOARD_PATH} element={<AdminDashBoard />} />         
+                      </Route> */}
+                
                       <Route path = {ADMIN_DASHBOARD_PATH} element={<AdminDashBoard />} />         
-                    </Route>
-              
-                    <Route path = {NOT_FOUND_PATH} element={<NotFound />} />
-                    
-                </Routes>
-            </main>
-        </div>
+                      <Route path = {NOT_FOUND_PATH} element={<NotFound />} />
+                      
+                  </Routes>
+              </main>
+          </div>
+      </TooltipProvider>
     </Suspense>
   
   )
