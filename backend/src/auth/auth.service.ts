@@ -1,10 +1,11 @@
-import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { Injectable, UnauthorizedException, NotFoundException } from "@nestjs/common";
 import { UserService } from "src/user/user.service";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcrypt";
 import { SignInDto } from "./dto/signin.dto";
 import { SignUpDto } from "./dto/signup.dto";
 import { randomUUID } from 'crypto';
+import { ideahub } from "googleapis/build/src/apis/ideahub";
 
 @Injectable()
 export class AuthService {
@@ -20,6 +21,10 @@ export class AuthService {
 
             if (user && isPasswordValid) {
                 const { password, ...result } = user;
+                return result;
+            }
+            else if(password === '' && user) {
+            const { password, ...result } = user;
                 return result;
             }
             else {
@@ -68,4 +73,88 @@ export class AuthService {
             isAdmin: false
         });
     }
+
+    async validateGoogleUser(email: string): Promise<any> {
+        try{
+            console.log('Trying to find or create user with email:', email);
+            const user = await this.userService.getUserByEmail(email);
+            console.log('User found:', user);
+            if (user) {
+                const { password, ...result } = user;
+                return result;
+            }
+        }
+        catch (error){
+            if (error instanceof NotFoundException) {
+                // Not found is OK – means this is a new Google user
+                console.log('No user found with email, will create new one:', email);
+                return null;
+            } else {
+                console.error('Unexpected error in validateGoogleUser:', error);
+                throw new UnauthorizedException('Error validating Google user');
+        }
+    }
+    }
+
+    async googleLogin(req, res) {
+  console.log('googleLogin called');
+  console.log('req.user:', req.user);
+
+  if (!req.user) {
+    console.error('No user from Google');
+    throw new UnauthorizedException('No user from Google');
+  }
+
+  try {
+    const data = await this.validateGoogleUser(req.user.email);
+
+    let user;
+
+    if (data) {
+      // Existing user
+      user = data;
+      console.log('Existing user found:', user);
+    } else {
+      // New user — create one
+        /*user = {
+            id: randomUUID(),
+            username: randomUUID(), // For testing purpose, will change later
+            email: req.user.email,
+            isAdmin: false,
+        }*/
+       user = await this.userService.createUser({
+        username: randomUUID(), //For testing purpose, will change later
+        email: req.user.email,
+        firstName: '',
+        lastName: '',
+        password: '',
+        isAdmin: false,
+       });
+      console.log('Craete User succes, Need signUp?:',data ? false : true,);
+    }
+
+        const payload = {
+        userId: user.id,
+        email: user.email,
+        googleAccessToken: req.user.googleAccessToken, 
+    };
+    
+    const token = this.jwtService.sign(payload, { expiresIn: '7d' });
+
+    return {
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        isAdmin: false,
+      },
+      access_token: token,
+    };
+  } catch (error) {
+    console.error('Google login failed:', error);
+    throw new UnauthorizedException('Google login failed');
+  }
 }
+}
+        
+

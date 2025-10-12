@@ -1,16 +1,17 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { SIGN_UP_PATH,BASE_PATH } from '@/constants/routes';
+import { SIGN_UP_PATH,BASE_PATH, SIGN_IN_PATH } from '@/constants/routes';
 import axios from 'axios';
 import { toast } from 'sonner';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
 import { ACCESS_TOKEN } from '@/constants/cookie';
 import { useEffect } from 'react';
-import { login } from '@/store/slice/authSlice';
+import { login} from '@/store/slice/authSlice';
 import { useAppDispatch } from '@/store/store';
 import { useSelector } from 'react-redux'
+import React from 'react';
 
 const SignIn: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -19,9 +20,6 @@ const SignIn: React.FC = () => {
   const [cookies, setCookie] = useCookies([ACCESS_TOKEN])
 
   const isAuthenticated = useSelector((state: { auth: { isAuthenticated: boolean; }; }) => state.auth.isAuthenticated);
-  // const { signUp, signInWithGoogle } = useAuth();
-  // const navigate = useNavigate();
-  // const { toast } = useToast();
 
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -33,12 +31,12 @@ const SignIn: React.FC = () => {
   }, [cookies, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
-      e.preventDefault();
+        e.preventDefault();
         setLoading(true);
         
         try{
           const result = await dispatch(login({email, password})).unwrap();
-          setCookie(ACCESS_TOKEN, result.access_token, { path: '/', secure: true, httpOnly: false });
+          setCookie(ACCESS_TOKEN, result.access_token, { path: '/', secure: false, httpOnly: false });
           toast.success('Sign in successful!');
           navigate(BASE_PATH, { replace: true });
         }
@@ -79,6 +77,29 @@ const SignIn: React.FC = () => {
         setLoading(false);
   };
 
+useEffect(() => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const email = urlParams.get('email') || '';
+
+  const checkGoogleLogin = async () => {
+    if (email) {
+    try {
+      await dispatch(login({ email, password: '' })).unwrap();
+      toast.success('Google sign-in successful!');
+      navigate(BASE_PATH, { replace: true });
+    } catch (error) {
+      console.error('Google login failed', error);
+      toast.error('Google sign-in failed. Please try again.');
+      navigate(SIGN_IN_PATH, { replace: true });
+    }
+  }
+  };
+
+  checkGoogleLogin();
+}, []);
+
+          
+
   return (
     <div className="h-screen flex items-center justify-center p-4">
       <div className="w-full max-w-md">
@@ -91,7 +112,7 @@ const SignIn: React.FC = () => {
             type="button"
             variant="outline"
             className="w-full mb-4"
-            // onClick={handleGoogleSignIn}
+            onClick={()=> window.location.href = `http://localhost:8080/api/v2/auth/google`}
           >
             <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
               <path

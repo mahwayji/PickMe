@@ -6,6 +6,7 @@ import { JwtStrategy } from "./jwt.strategy";
 import { DEFAULT_JWT_SECRET, JWT_EXPIRATION_TIME } from "src/config/jwt";
 import { PrismaService } from "src/prisma/prisma.service";
 import { UserService } from "src/user/user.service";
+import { GoogleStrategy } from "./google.strategy";
 
 @Module({
     imports: [
@@ -16,6 +17,6 @@ import { UserService } from "src/user/user.service";
 
     ],
     controllers: [AuthController],
-    providers: [AuthService, JwtStrategy, PrismaService, UserService],
+    providers: [AuthService, JwtStrategy, PrismaService, UserService, GoogleStrategy],
 })
 export class AuthModule {}

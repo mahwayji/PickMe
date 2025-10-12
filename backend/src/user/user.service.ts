@@ -18,7 +18,7 @@ export class UserService {
         const hashedPassword = await bcrypt.hash(user.password, BCRYPT_SALT_ROUNDS)
         user.password = hashedPassword
 
-        return this.prisma.user.
+        return await this.prisma.user.
         create({
             data: user
         })

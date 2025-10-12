@@ -14,6 +14,7 @@ import { axiosInstance } from './lib/axios'
 import ServerDown from './pages/ServerDown'
 import { TooltipProvider } from '@radix-ui/react-tooltip'
 import { CookiesProvider } from 'react-cookie'
+import { GoogleOAuthProvider } from '@react-oauth/google'
 
 function App() {
   const [isServerDown, setServerDown] = useState<boolean>(false)
@@ -28,6 +29,7 @@ function App() {
   
   return (
     <Suspense fallback = {<Loading/>} >
+      <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
       <CookiesProvider>
       <TooltipProvider>
         <Toaster />
@@ -54,6 +56,7 @@ function App() {
           </div>
       </TooltipProvider>
       </CookiesProvider>
+      </GoogleOAuthProvider>
     </Suspense>
   
   )

@@ -1,6 +1,8 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
+import { createSlice, createAsyncThunk} from '@reduxjs/toolkit'
 import { axiosInstance } from '@/lib/axios'
 import axios from 'axios'
+import type { PayloadAction } from '@reduxjs/toolkit'
+
 
 export interface UserState {
   username: string
@@ -60,7 +62,12 @@ export const me = createAsyncThunk('auth/me', async (token: string, { rejectWith
 const authSlice = createSlice({
   name: 'auth',
   initialState,
-  reducers: {},
+  reducers: {
+    googleLoginSuccess: (state, action: PayloadAction<{ user: UserState }>) => {
+      state.user = action.payload.user
+      state.isAuthenticated = true
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(login.fulfilled, (state, action) => {
@@ -84,6 +91,7 @@ const authSlice = createSlice({
         state.isAuthenticated = false
         state.isLoading = false
       })
+      
   },
 })
 
