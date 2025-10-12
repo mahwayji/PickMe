@@ -8,19 +8,19 @@ import { toast } from 'sonner'
 import { useState } from 'react'
 import { logout } from '@/store/slice/authSlice'
 import { useAppDispatch } from '@/store/store'
+import { ACCESS_TOKEN } from '@/constants/cookie'
+import { useCookies } from 'react-cookie'
 
 const SideBar: React.FC = () => {
-//profile
-//login
-//logout
-//post
     const [loading, setLoading] = useState(false);
     const dispatch = useAppDispatch();
-
+    const [, , removeCookie] = useCookies([ACCESS_TOKEN])
     const handleLogout = () => {
         try {
             dispatch(logout()).unwrap();
+            removeCookie(ACCESS_TOKEN);
             setLoading(true);
+            
             toast.success('Logged out successfully');
         } catch (error) {
             toast.error('Failed to log out');
@@ -29,6 +29,7 @@ const SideBar: React.FC = () => {
     }
 
     const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated)
+    
     return (
     <div className = "fixed top-0 left-0 min-w-[150px] w-[10%] h-[100%] shadow-sm" >
         <div className = 'text-left p-4 text-5xl font-italianno'>PickMe</div>

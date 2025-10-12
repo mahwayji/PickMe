@@ -1,24 +1,23 @@
-import { Navigate, Outlet } from 'react-router-dom'
+import { Outlet } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import type { RootState } from '@/store/store'
-import { BASE_PATH } from '@/constants/routes'
 import Loading from '@/pages/Loading'
-import NotFound from '@/pages/NotFound'
+import Unauthorize from '@/pages/Unauthorize'
 
 const AdminProtected: React.FC = () => {
   const { isAuthenticated, user, isLoading } = useSelector((state: RootState) => state.auth)
   console.log(isAuthenticated, user, isLoading)
-
-
-  if (!isAuthenticated || (user && !user.isAdmin && !user.isSuperAdmin)) {
-    return <Navigate to={BASE_PATH} replace />
-  }
-
-    if (isLoading) {
+  
+  if (isLoading) {
     return <Loading />
   }
 
-  if (!user) return (<NotFound />)
+  if (!isAuthenticated || (user && !user.isAdmin)) {
+    return <Unauthorize/>
+  }
+
+  if (!user) return (<Unauthorize />)
+
   return <Outlet />
 }
 

@@ -5,12 +5,15 @@ import { BrowserRouter } from 'react-router-dom'
 import { Provider } from 'react-redux'
 import { store } from './store/store.ts'
 import App from './App.tsx'
+import { CookiesProvider } from 'react-cookie'
 
 createRoot(document.getElementById('root')!).render(
   <BrowserRouter>
     <Provider store = {store}>
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-        <App />
+        <CookiesProvider>
+          <App />
+        </CookiesProvider>
       </ThemeProvider>
     </Provider >
   </BrowserRouter>,

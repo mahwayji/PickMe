@@ -33,7 +33,6 @@ type Props = {
 
 export function UsersDataTable({ data, setData, fetchUsers }: Props) {
   const user = useSelector((state: RootState) => state.auth.user)
-
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
@@ -111,8 +110,8 @@ export function UsersDataTable({ data, setData, fetchUsers }: Props) {
     resetSelection()
     toast.success('User data has been refreshed')
   }
-  //const isAdmin = user?.isAdmin
-  const isAdmin = true;
+  const isAdmin = user?.isAdmin
+
   const columns: ColumnDef<User>[] = tableColumns({
     isAdmin,
     handleDeleteUser,

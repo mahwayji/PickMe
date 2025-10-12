@@ -13,7 +13,6 @@ const AdminDashBoard : React.FC= () => {
 
   useEffect(() => {
     fetchUsers()
-    console.log(data)
   }, [])
 
   

@@ -10,25 +10,16 @@ import { ACCESS_TOKEN } from '@/constants/cookie';
 import { useEffect } from 'react';
 import { login} from '@/store/slice/authSlice';
 import { useAppDispatch } from '@/store/store';
-import { useSelector } from 'react-redux'
 import React from 'react';
 
 const SignIn: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [cookies, setCookie] = useCookies([ACCESS_TOKEN])
-
-  const isAuthenticated = useSelector((state: { auth: { isAuthenticated: boolean; }; }) => state.auth.isAuthenticated);
+  const [, setCookie] = useCookies([ACCESS_TOKEN])
 
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate(BASE_PATH, { replace: true });
-    }
-  }, [cookies, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -36,7 +27,7 @@ const SignIn: React.FC = () => {
         
         try{
           const result = await dispatch(login({email, password})).unwrap();
-          setCookie(ACCESS_TOKEN, result.access_token, { path: '/', secure: false, httpOnly: false });
+          setCookie(ACCESS_TOKEN, result.access_token, { path: '/', httpOnly: false });
           toast.success('Sign in successful!');
           navigate(BASE_PATH, { replace: true });
         }
@@ -49,31 +40,6 @@ const SignIn: React.FC = () => {
             toast.error('An unexpected error occurred');
           }
         } 
-  //   try {
-  //     await signIn(email, password);
-  //     navigate('/dashboard');
-  //   } catch (error) {
-  //     toast({
-  //       variant: 'destructive',
-  //       title: 'Error',
-  //       description: 'Invalid email or password',
-  //     });
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
-  // const handleGoogleSignIn = async () => {
-  //   try {
-  //     await signInWithGoogle();
-  //     navigate('/dashboard');
-  //   } catch (error) {
-  //     toast({
-  //       variant: 'destructive',
-  //       title: 'Error',
-  //       description: 'Failed to sign in with Google',
-  //     });
-  //   }
         setLoading(false);
   };
 

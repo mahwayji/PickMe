@@ -61,7 +61,7 @@ const onSubmit = async (values: z.infer<typeof formScheme>) => {
         isAdmin: values.admin,
         password: values.password,
     }
-    console.log(newUser)
+
     try {
         const res = await axiosInstance.post('/user', newUser)
         setData([...data, res.data])

@@ -29,9 +29,9 @@ const UserDataController: React.FC<Props> = ({
   handleDeleteUser,
   handleAddUser,
 }: Props) => {
-  //const user = useSelector((state: RootState) => state.auth.user)
-  //const isSuperAdmin = user?.isSuperAdmin
-  const isSuperAdmin = true;
+  const user = useSelector((state: RootState) => state.auth.user)
+  const isAdmin = user?.isAdmin
+
 
   return (
     <div className="flex items-center justify-between py-4">
@@ -55,7 +55,7 @@ const UserDataController: React.FC<Props> = ({
       </div>
 
       <div className="flex items-center gap-2">
-        {selectedCount > 0 && isSuperAdmin && (
+        {selectedCount > 0 && isAdmin && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm">
@@ -96,7 +96,7 @@ const UserDataController: React.FC<Props> = ({
               })}
           </DropdownMenuContent>
         </DropdownMenu>
-        {isSuperAdmin ? (
+        {isAdmin ? (
           <Tooltip>
             <TooltipTrigger>
               <Button onClick={handleAddUser} size="sm">
