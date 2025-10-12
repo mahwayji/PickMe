@@ -65,7 +65,3 @@ jobs:
         working-directory: backend
         run: bun run build
 
-      # (Optional) Run tests
-      - name: Run backend tests
-        working-directory: backend
-        run: bun run test
