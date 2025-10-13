@@ -32,20 +32,19 @@ export class AuthController {
 
     @Get('google/callback')
     @UseGuards(AuthGuard('google'))
-    async googleAuthRedirect(@Request() req,@Res() res) {
+    async googleAuthRedirect(@Request() req, @Res() res) {
         try {
             const result = await this.authService.googleLogin(req, res);
+
             const redirectUri = 'http://localhost:3000/sign-in';
-            const redirectUrl = `${redirectUri}?sucess=${true}&email=${result.user.email}&token=${result.access_token}`;
+            const redirectUrl = `${redirectUri}?success=${true}&email=${result.user.email}&token=${result.access_token}`;
             console.error('Going back', redirectUri);
             return res.redirect(redirectUrl);
         } catch (error) {
             console.error('Error during Google OAuth callback:', error);
             const redirectUri = 'http://localhost:3000/sign-in';
-            const redirectUrl = `${redirectUri}?sucess=${false}`;
+            const redirectUrl = `${redirectUri}?success=${false}`;
             return res.redirect(redirectUrl);
         }
-
-        // return this.authService.googleLogin(req);
         }
 }

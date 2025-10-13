@@ -6,18 +6,17 @@ import axios from 'axios';
 import { axiosInstance } from '@/lib/axios';
 import { toast } from 'sonner';
 import { Link, useNavigate } from 'react-router-dom';
-import { login} from '@/store/slice/authSlice';
 import { useAppDispatch } from '@/store/store';
+import { useCookies } from 'react-cookie';
+import { ACCESS_TOKEN } from '@/constants/cookie';
+import { googleLoginSuccess } from '@/store/slice/authSlice';
 
 const SignUp: React.FC = () => {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  // const { signUp, signInWithGoogle } = useAuth();
-  // const navigate = useNavigate();
-  // const { toast } = useToast();
-
+  const [, setCookie] = useCookies([ACCESS_TOKEN]);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
@@ -40,54 +39,43 @@ const SignUp: React.FC = () => {
         toast.error('An unexpected error occurred');
       }
     } 
-  //   try {
-  //     await signUp(email, password);
-  //     navigate('/dashboard');
-  //   } catch (error) {
-  //     toast({
-  //       variant: 'destructive',
-  //       title: 'Error',
-  //       description: 'Email already exists or invalid input',
-  //     });
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
-  // const handleGoogleSignIn = async () => {
-  //   try {
-  //     await signInWithGoogle();
-  //     navigate('/dashboard');
-  //   } catch (error) {
-  //     toast({
-  //       variant: 'destructive',
-  //       title: 'Error',
-  //       description: 'Failed to sign in with Google',
-  //     });
-  //   }
     setLoading(false);
   };
 
-  useEffect(() => {
+ useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    const email = urlParams.get('email') || '';
-  
+    const token = urlParams.get('token');
+    const success = urlParams.get('success');
+    const email = urlParams.get('email');
     const checkGoogleLogin = async () => {
-      if (email) {
-      try {
-        await dispatch(login({ email, password: '' })).unwrap();
-        toast.success('Google sign-in successful!');
-        navigate(BASE_PATH, { replace: true });
-      } catch (error) {
-        console.error('Google login failed', error);
-        toast.error('Google sign-in failed. Please try again.');
-        navigate(SIGN_IN_PATH, { replace: true });
-      }
-    }
-    };
-  
-    checkGoogleLogin();
-  }, []);
+      if (success === 'true' && token && email) {
+        try {
+          setCookie(ACCESS_TOKEN, token, { path: '/', httpOnly: false});
+          
+          dispatch(googleLoginSuccess({ 
+              user: {
+                  email: email,
+                  firstName: '',
+                  lastName: '',
+                  isAdmin: false,
+              }
+          }));
+          
+          window.history.replaceState({}, document.title, SIGN_IN_PATH);
+
+          toast.success('Google sign-in successful!');
+          navigate(BASE_PATH, { replace: true });
+        } catch (error) {
+          console.error('Google login failed', error);
+          toast.error('Google sign-in failed. Please try again.');
+          navigate(SIGN_IN_PATH, { replace: true });
+        }
+      }   
+      };
+
+  checkGoogleLogin();
+
+  }, [setCookie, navigate]); 
 
   return (
     <div className="h-screen flex items-center justify-center p-4 bg-background">
@@ -100,7 +88,8 @@ const SignUp: React.FC = () => {
               type="button"
               variant="outline"
               className="w-full mb-4"
-              onClick={()=> window.location.href = `http://localhost:8080/api/v2/auth/google`}
+              onClick={()=> window.location.href = `http://localhost:8080/api/v2/auth/google` 
+              }
             >
               <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
                 <path

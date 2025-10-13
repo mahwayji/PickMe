@@ -8,7 +8,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
 import { ACCESS_TOKEN } from '@/constants/cookie';
 import { useEffect } from 'react';
-import { login} from '@/store/slice/authSlice';
+import { googleLoginSuccess, login} from '@/store/slice/authSlice';
 import { useAppDispatch } from '@/store/store';
 import React from 'react';
 
@@ -43,29 +43,42 @@ const SignIn: React.FC = () => {
         setLoading(false);
   };
 
-useEffect(() => {
-  const urlParams = new URLSearchParams(window.location.search);
-  const email = urlParams.get('email') || '';
 
-  const checkGoogleLogin = async () => {
-    if (email) {
-    try {
-      await dispatch(login({ email, password: '' })).unwrap();
-      toast.success('Google sign-in successful!');
-      navigate(BASE_PATH, { replace: true });
-    } catch (error) {
-      console.error('Google login failed', error);
-      toast.error('Google sign-in failed. Please try again.');
-      navigate(SIGN_IN_PATH, { replace: true });
-    }
-  }
-  };
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    const success = urlParams.get('success');
+    const email = urlParams.get('email');
+    const checkGoogleLogin = async () => {
+      if (success === 'true' && token && email) {
+        try {
+          setCookie(ACCESS_TOKEN, token, { path: '/', httpOnly: false});
+          
+          dispatch(googleLoginSuccess({ 
+              user: {
+                  email: email,
+                  firstName: '',
+                  lastName: '',
+                  isAdmin: false,
+              }
+          }));
+          
+          window.history.replaceState({}, document.title, SIGN_IN_PATH);
+
+          toast.success('Google sign-in successful!');
+          navigate(BASE_PATH, { replace: true });
+        } catch (error) {
+          console.error('Google login failed', error);
+          toast.error('Google sign-in failed. Please try again.');
+          navigate(SIGN_IN_PATH, { replace: true });
+        }
+      }   
+      };
 
   checkGoogleLogin();
-}, []);
 
+  }, [setCookie, navigate]); 
           
-
   return (
     <div className="h-screen flex items-center justify-center p-4">
       <div className="w-full max-w-md">
@@ -151,3 +164,5 @@ useEffect(() => {
 }
 
 export default SignIn
+
+

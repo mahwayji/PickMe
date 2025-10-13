@@ -5,7 +5,6 @@ import type { PayloadAction } from '@reduxjs/toolkit'
 
 
 export interface UserState {
-  username: string
   email: string
   firstName: string
   lastName: string
@@ -64,9 +63,9 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     googleLoginSuccess: (state, action: PayloadAction<{ user: UserState }>) => {
-      state.user = action.payload.user
-      state.isAuthenticated = true
-    },
+      state.user = action.payload.user;
+      state.isAuthenticated = true;
+},
   },
   extraReducers: (builder) => {
     builder
@@ -94,5 +93,5 @@ const authSlice = createSlice({
       
   },
 })
-
+export const { googleLoginSuccess } = authSlice.actions; 
 export default authSlice.reducer
