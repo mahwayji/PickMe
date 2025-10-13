@@ -10,14 +10,14 @@ export const axiosInstance = axios.create({
     'Content-Type': 'application/json',
   },
   withCredentials: true,
-})
+  })
 
-axiosInstance.interceptors.request.use(function (config) {
-  const token = cookies.get(ACCESS_TOKEN)
+  axiosInstance.interceptors.request.use(function (config) {
+    const token = cookies.get(ACCESS_TOKEN)
 
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`
-  }
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`
+    }
 
-  return config
+    return config
 })

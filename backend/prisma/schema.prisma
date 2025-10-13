@@ -48,11 +48,16 @@ enum ShareChannel {
 /* ---------------- Core Chain ---------------- */
 
 model User {
-  id        String   @id @default(cuid()) @map("_id")
-  email     String   @unique
-  name      String?
-  avatarUrl String?
-  createdAt DateTime @default(now())
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  username        String   @unique
+  firstName       String
+  lastName        String
+  email           String   @unique
+  password        String
+  profilePicture  String?
+  isAdmin         Boolean
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @default(now())
 
   profile   Profile?
   media     Media[]  @relation("UserMedia")      // ไฟล์ที่ user อัปโหลด

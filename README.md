@@ -7,10 +7,17 @@ This project is part of CPE334 Software Engineering final project. The project P
 - Docker (optional)
 
 ## Setup
-### env
+### env backend
 create `.env` file inside backend folder with following code
 ```
-DATABASE_URL = "mongodb://<name>:<password>@localhost:27017/PickMePickMe?authSource=admin
+DATABASE_URL = "mongodb://<name>:<password>@localhost:27017/PickMe?authSource=admin&replicaSet=rs0"
+GOOGLE_CLIENT_ID="..."
+GOOGLE_CLIENT_SECRET="..."
+```
+### env fontend 
+create `.env` file inside frontend folder with following code
+```
+GOOGLE_CLIENT_ID="..."
 ```
 
 ### Development
