@@ -13,62 +13,40 @@ datasource db {
 // ======================================================
 //  Enums
 // ======================================================
-enum profile_visibility {
-  public
-  private
-  friends
+enum Visibility {
+  PUBLIC
+  UNLISTED
+  PRIVATE
 }
 
-enum item_type {
+enum BlockType {
   text
   image
   video
   link
+  pdf
 }
 
-enum media_type {
+enum MediaType {
   image
   video
-  audio
-  document
+  pdf
+  other
 }
 
-enum share_status {
-  active
-  revoked
+enum ShareStatus {
+  ACTIVE
+  REVOKED
 }
 
-enum target_type {
-  profile
-  section
-  item
+enum ShareChannel {
+  LINK
+  QR
+  EMAIL
 }
 
-enum reaction_type {
-  like
-  love
-  haha
-  wow
-  sad
-  angry
-}
+/* ---------------- Core Chain ---------------- */
 
-enum notification_type {
-  new_follower
-  comment
-  reaction
-  system
-}
-
-enum notification_channel {
-  email
-  push
-  in_app
-}
-
-// ======================================================
-//  Core Models
-// ======================================================
 model User {
   id              String   @id @default(auto()) @map("_id") @db.ObjectId
   username        String   @unique
@@ -76,209 +54,185 @@ model User {
   lastName        String
   email           String   @unique
   password        String
-  profilePicture  String?
+  avatarUrl       String?
   isAdmin         Boolean
   createdAt       DateTime @default(now())
   updatedAt       DateTime @default(now())
 
-  oauthAccounts   OauthAccount[]
-  profile         Profile?
-  media           Media[]
-  reactions       Reaction[]
-  notifications   Notification[]
-  feedback        Feedback[]
-  savedFilters    UserSavedFilter[]
-}
-
-model OauthAccount {
-  id            String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId        String   @db.ObjectId
-  provider      String
-  googleSub     String   @unique
-  accessToken   String?
-  refreshToken  String?
-  linkedAt      DateTime @default(now())
-
-  user          User?    @relation(fields: [userId], references: [id])
+  profile   Profile?
+  media     Media[]  @relation("UserMedia")      // ไฟล์ที่ user อัปโหลด
 }
 
 model Profile {
-  id            String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId        String   @unique @db.ObjectId
-  displayName   String?
-  description   String?
-  location      String?
-  contactEmail  String?
-  links         Json?
-  visibility    profile_visibility @default(public)
-  layoutConfig  Json?
-  updatedAt     DateTime @default(now())
+  id          String     @id @default(cuid()) @map("_id")
+  userId      String     @unique
+  displayName String
+  description String?
+  location    String?
+  emailPublic String?
+  url         String?
+  visibility  Visibility  @default(PUBLIC)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
 
-  user          User?     @relation(fields: [userId], references: [id])
-  sections      Section[]
-  shareLinks    ShareLink[]
+  user        User       @relation(fields: [userId], references: [id])
+  sections    Section[]
+  shareLinks  ShareLink[]
+  media       Media[]    @relation("ProfileToMedia")
 }
 
 model Section {
-  id             String   @id @default(auto()) @map("_id") @db.ObjectId
-  profileId      String   @db.ObjectId
-  title          String?
-  description    String?
-  width          Int?
-  height         Int?
-  orderIndex     Int?
-  coverMediaId   String?  @db.ObjectId
-  coverAlt       String?
-  coverSettings  Json?    @default("{}")
-  updatedAt      DateTime @default(now())
+  id            String    @id @default(cuid()) @map("_id")
+  profileId     String
+  title         String
+  description   String?
+  coverMediaId  String?   // FK ไป Media ถ้ามีภาพปก
+  orderIndex    Int?      // ลำดับในหน้าโปรไฟล์
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
-  profile        Profile? @relation(fields: [profileId], references: [id])
-  items          Item[]
-  media          Media[]
-  tags           SectionTag[]
+  profile       Profile   @relation(fields: [profileId], references: [id])
+  coverMedia    Media?    @relation("SectionCoverMedia", fields: [coverMediaId], references: [id])
+  items         Item[]
+
+  @@index([profileId])
 }
 
 model Item {
-  id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  sectionId    String   @db.ObjectId
-  type         item_type
-  title        String?
-  description  String?
-  content      String?
-  orderIndex   Int?
-  updatedAt    DateTime @default(now())
+  id                 String    @id @default(cuid()) @map("_id")
+  sectionId          String
+  title              String
+  description        String?
+  thumbnailMediaId   String?
+  orderIndex         Int?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
 
-  section      Section? @relation(fields: [sectionId], references: [id])
-  media        Media[]
-  tags         ItemTag[]
+  section            Section   @relation(fields: [sectionId], references: [id])
+  thumbnailMedia     Media?    @relation("ItemThumbMedia", fields: [thumbnailMediaId], references: [id])
+
+  blocks             ItemBlock[]
+  tags               ItemTag[]
+  stat               ItemStat?
+  views              ViewEvent[]
+  shares             ShareEvent[]
+
+  @@index([sectionId])
 }
 
-// ======================================================
-//  Media
-// ======================================================
+model ItemBlock {
+  id         String    @id @default(cuid()) @map("_id")
+  itemId     String
+  type       BlockType
+  mediaId    String?   // ถ้าเป็น image/video/pdf block
+  content    Json      // payload + style/alt/caption/… (ตาม type)
+  orderIndex Int?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  item       Item      @relation(fields: [itemId], references: [id])
+  media      Media?    @relation("BlockMedia", fields: [mediaId], references: [id])
+
+  @@index([itemId])
+  @@index([mediaId])
+}
+
+/* ---------------- Media Library ---------------- */
+
 model Media {
-  id             String   @id @default(auto()) @map("_id") @db.ObjectId
-  ownerUserId    String   @db.ObjectId
-  sectionId      String?  @db.ObjectId
-  itemId         String?  @db.ObjectId
-  mediaType      media_type
-  fileUrl        String
-  thumbnailUrl   String?
-  fileSize       BigInt?
-  uploadedAt     DateTime @default(now())
+  id         String     @id @default(cuid()) @map("_id")
+  ownerId    String?    // ใครอัปโหลด (อาจว่าง ถ้าเป็นระบบ)
+  profileId  String?    // ผูกกับโปรไฟล์ไหน (optional)
+  fileName   String
+  url        String     @unique
+  type       MediaType
+  mimeType   String?
+  size       Int?
+  width      Int?
+  height     Int?
+  usedCount  Int        @default(0) // นับการอ้างอิงจาก blocks/items/sections
+  uploadedAt DateTime   @default(now())
 
-  ownerUser      User?     @relation(fields: [ownerUserId], references: [id])
-  section        Section?  @relation(fields: [sectionId], references: [id])
-  item           Item?     @relation(fields: [itemId], references: [id])
+  profile    Profile?   @relation("ProfileToMedia", fields: [profileId], references: [id])
+  user       User?      @relation("UserMedia", fields: [ownerId], references: [id])
+
+  // Back-relations
+  sectionCover Section[]  @relation("SectionCoverMedia")
+  itemThumb     Item[]    @relation("ItemThumbMedia")
+  blockUsedIn   ItemBlock[] @relation("BlockMedia")
+
+  @@index([ownerId])
+  @@index([profileId])
 }
 
-// ======================================================
-//  Tags & Discovery
-// ======================================================
+/* ---------------- Tags ---------------- */
+
 model Tag {
-  id            String   @id @default(auto()) @map("_id") @db.ObjectId
-  name          String   @unique
-  description   String?
-  createdAt     DateTime @default(now())
+  id        String    @id @default(cuid()) @map("_id")
+  name      String    @unique
+  createdAt DateTime  @default(now())
 
-  sectionTags   SectionTag[]
-  itemTags      ItemTag[]
-  tagTrends     TagTrend[]
-}
-
-model SectionTag {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  sectionId   String   @db.ObjectId
-  tagId       String   @db.ObjectId
-
-  section     Section? @relation(fields: [sectionId], references: [id])
-  tag         Tag?     @relation(fields: [tagId], references: [id])
+  items     ItemTag[]
 }
 
 model ItemTag {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  itemId    String   @db.ObjectId
-  tagId     String   @db.ObjectId
+  id     String @id @default(cuid()) @map("_id")
+  itemId String
+  tagId  String
 
-  item      Item? @relation(fields: [itemId], references: [id])
-  tag       Tag?  @relation(fields: [tagId], references: [id])
+  item   Item @relation(fields: [itemId], references: [id])
+  tag    Tag  @relation(fields: [tagId], references: [id])
+
+  @@unique([itemId, tagId])
+  @@index([tagId])
 }
 
-model TagTrend {
-  id               String   @id @default(auto()) @map("_id") @db.ObjectId
-  tagId            String   @db.ObjectId
-  dateBucket       DateTime
-  postCount        Int      @default(0)
-  reactionCount    Int      @default(0)
-  impressionCount  Int      @default(0)
+/* ---------------- Share / QR ---------------- */
 
-  tag              Tag?     @relation(fields: [tagId], references: [id])
-}
-
-model UserSavedFilter {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId     String   @db.ObjectId
-  name       String?
-  tagIds     String[]
-  createdAt  DateTime @default(now())
-
-  user       User?    @relation(fields: [userId], references: [id])
-}
-
-// ======================================================
-//  Sharing & Social
-// ======================================================
 model ShareLink {
-  id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  profileId    String   @db.ObjectId
-  token        String   @unique
-  status       share_status @default(active)
-  createdAt    DateTime @default(now())
-  revokedAt    DateTime?
+  id         String      @id @default(cuid()) @map("_id")
+  profileId  String
+  slug       String      @unique  // ใช้เป็น path ของลิงก์
+  status     ShareStatus @default(ACTIVE)
+  createdAt  DateTime    @default(now())
+  revokedAt  DateTime?
 
-  profile      Profile? @relation(fields: [profileId], references: [id])
-  qrcodes      QrCode[]
+  profile    Profile     @relation(fields: [profileId], references: [id])
+
+  @@index([profileId])
 }
 
-model QrCode {
-  id            String   @id @default(auto()) @map("_id") @db.ObjectId
-  shareLinkId   String   @db.ObjectId
-  imageUrl      String
-  generatedAt   DateTime @default(now())
+/* ---------------- Stats / Events ---------------- */
 
-  shareLink     ShareLink? @relation(fields: [shareLinkId], references: [id])
+model ItemStat {
+  itemId     String   @id @map("_id")
+  viewCount  Int      @default(0)
+  likeCount  Int      @default(0) // ถ้ายังไม่มีปุ่ม like จริง อาจไม่ใช้
+
+  item       Item     @relation(fields: [itemId], references: [id])
 }
 
-model Feedback {
-  id             String   @id @default(auto()) @map("_id") @db.ObjectId
-  authorUserId   String   @db.ObjectId
-  targetType     target_type
-  targetId       String
-  message        String
-  createdAt      DateTime @default(now())
+model ViewEvent {
+  id         String    @id @default(cuid()) @map("_id")
+  itemId     String
+  userId     String?   // ถ้า viewer ล็อกอิน
+  ipHash     String?   // เก็บแบบแฮชเพื่อ privacy
+  userAgent  String?
+  createdAt  DateTime  @default(now())
 
-  authorUser     User?    @relation(fields: [authorUserId], references: [id])
+  item       Item      @relation(fields: [itemId], references: [id])
+
+  @@index([itemId, createdAt])
 }
 
-model Reaction {
-  id             String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId         String   @db.ObjectId
-  targetType     target_type
-  targetId       String
-  reactionType   reaction_type
-  createdAt      DateTime @default(now())
+model ShareEvent {
+  id         String       @id @default(cuid()) @map("_id")
+  itemId     String
+  channel    ShareChannel
+  createdAt  DateTime     @default(now())
 
-  user           User?    @relation(fields: [userId], references: [id])
+  item       Item         @relation(fields: [itemId], references: [id])
+
+  @@index([itemId, createdAt])
 }
 
-model Notification {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId      String   @db.ObjectId
-  type        notification_type
-  channel     notification_channel
-  payload     Json?
-  sentAt      DateTime?
-  readAt      DateTime?
-
-  user        User?    @relation(fields: [userId], references: [id])
-}
