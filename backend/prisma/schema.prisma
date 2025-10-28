@@ -48,7 +48,7 @@ enum ShareChannel {
 /* ---------------- Core Chain ---------------- */
 
 model User {
-  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  id              String   @id @default(cuid()) @map("_id")
   username        String   @unique
   firstName       String
   lastName        String
@@ -66,7 +66,6 @@ model User {
 model Profile {
   id          String     @id @default(cuid()) @map("_id")
   userId      String     @unique
-  displayName String
   description String?
   location    String?
   emailPublic String?
