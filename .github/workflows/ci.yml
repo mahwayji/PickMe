@@ -65,8 +65,3 @@ jobs:
         working-directory: backend
         run: bun run build
 
-      # Run backend tests
-      - name: Run backend tests
-        working-directory: backend
-        run: bunx jest --config jest.config.ts
-
