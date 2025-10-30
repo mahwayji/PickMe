@@ -16,8 +16,6 @@ jobs:
         ports:
           - 27017:27017
         options: >-
-          --replSet rs0
-          --bind_ip_all
           --health-cmd="mongosh --eval 'db.adminCommand(\"ping\")'" 
           --health-interval=10s 
           --health-timeout=5s 
@@ -69,9 +67,6 @@ jobs:
       - name: Build backend
         working-directory: backend
         run: bun run build
-      # Run mongoDB replica set 
-      - name: Initiate MongoDB replica set
-        run: mongosh --eval "rs.initiate()"
 
         # Run backend tests
       - name: Run backend tests
