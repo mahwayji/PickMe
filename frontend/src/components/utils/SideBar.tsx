@@ -1,6 +1,6 @@
-import { BASE_PATH, PROFILE_INFO_PATH, SIGN_IN_PATH, SIGN_UP_PATH } from '@/constants/routes'
+import { BASE_PATH, PROFILE_INFO_PATH, SIGN_IN_PATH } from '@/constants/routes'
 import type { RootState } from '@/store/store'
-import { Bell, Home, Search, UserCheck, UserPlus, UserRound,LogOutIcon } from 'lucide-react'
+import { Home, Search, UserCheck, UserRound,LogOutIcon } from 'lucide-react'
 import React from 'react'
 import { useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
@@ -50,7 +50,7 @@ const SideBar: React.FC = () => {
 
         {
         isAuthenticated &&
-            <Link to ={PROFILE_INFO_PATH.replace(':username', user?.username)} 
+            <Link to ={PROFILE_INFO_PATH.replace(':username', user ? user.username : '404')} 
             className = 'px-5 py-2 flex items-center justify-start gap-2 hover:bg-zinc-400'
             >
                 <UserRound size = {16}/>
