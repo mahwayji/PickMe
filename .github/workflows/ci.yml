@@ -15,60 +15,41 @@ jobs:
         image: mongo:6
         ports:
           - 27017:27017
-        options: >-
-          --health-cmd="mongosh --eval 'db.adminCommand(\"ping\")'" 
-          --health-interval=10s 
-          --health-timeout=5s 
-          --health-retries=5
         command: ["--replSet", "rs0", "--bind_ip_all"]
+        options: >-
+          --health-cmd "echo 'db.runCommand({ ping: 1 })' | mongo localhost:27017/test --quiet"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     env:
-      DATABASE_URL: mongodb://localhost:27017/pickme?replicaSet=r0
+      DATABASE_URL: mongodb://localhost:27017/pickme?replicaSet=rs0
       GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
       GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
       VITE_GOOGLE_CLIENT_ID: ${{ secrets.VITE_GOOGLE_CLIENT_ID }}
 
     steps:
-      # Checkout repo
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Install Bun
       - name: Setup Bun
         uses: oven-sh/setup-bun@v1
         with:
           bun-version: latest
 
-      # Install deps for frontend
       - name: Install frontend dependencies
         working-directory: frontend
         run: bun install
 
-      # Build frontend
       - name: Build frontend
         working-directory: frontend
         run: bun run build
 
-      # Install deps for backend
       - name: Install backend dependencies
         working-directory: backend
         run: bun install
 
-      # Generate Prisma client
-      - name: Generate Prisma client
-        working-directory: backend
-        run: bunx prisma generate
-
-      # Run Prisma migrations
-      - name: Run Prisma migrations
-        working-directory: backend
-        run: bunx prisma db push
-
-      # Build backend
-      - name: Build backend
-        working-directory: backend
-        run: bun run build
-      
+      # Wait for Mongo & init replica set BEFORE Prisma commands
       - name: Wait for MongoDB
         run: |
           until nc -z localhost 27017; do
@@ -78,10 +59,21 @@ jobs:
 
       - name: Initialize replica set
         run: |
-          mongosh --host localhost --eval "rs.initiate({_id: 'rs0', members: [{ _id: 0, host: 'localhost:27017' }]})"
+          mongo --eval "rs.initiate({_id: 'rs0', members: [{ _id: 0, host: 'localhost:27017' }]})"
           echo "Replica set initialized"
 
-      # Test
+      - name: Generate Prisma client
+        working-directory: backend
+        run: bunx prisma generate
+
+      - name: Run Prisma migrations
+        working-directory: backend
+        run: bunx prisma db push
+
+      - name: Build backend
+        working-directory: backend
+        run: bun run build
+
       - name: Run backend tests
         working-directory: backend
         run: bunx jest --config jest.config.ts
