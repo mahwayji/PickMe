@@ -67,11 +67,12 @@ jobs:
       - name: Build backend
         working-directory: backend
         run: bun run build
+      
       - name: Wait for MongoDB
         run: |
-          until mongo --eval "db.adminCommand('ping')" --quiet; do
-            echo "Waiting for MongoDB to be ready..."
-            sleep 5
+          until nc -z localhost 27017; do
+            echo "Waiting for MongoDB..."
+            sleep 2
           done
 
       # Test
