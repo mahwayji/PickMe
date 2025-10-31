@@ -20,11 +20,10 @@ jobs:
           --health-interval=10s 
           --health-timeout=5s 
           --health-retries=5
-
-    command: ["--replSet", "rs0", "--bind_ip_all"]
+        command: ["--replSet", "rs0", "--bind_ip_all"]
 
     env:
-      DATABASE_URL: mongodb://localhost:27017/pickme
+      DATABASE_URL: mongodb://localhost:27017/pickme?replicaSet=r0
       GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
       GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
       VITE_GOOGLE_CLIENT_ID: ${{ secrets.VITE_GOOGLE_CLIENT_ID }}
