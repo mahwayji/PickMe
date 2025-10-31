@@ -21,12 +21,6 @@ jobs:
           --health-timeout=5s 
           --health-retries=5
 
-    env:
-      DATABASE_URL: mongodb://localhost:27017/pickme
-      GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
-      GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
-      VITE_GOOGLE_CLIENT_ID: ${{ secrets.VITE_GOOGLE_CLIENT_ID }}
-    
     steps:
       # Checkout repo
       - name: Checkout repository
@@ -63,13 +57,23 @@ jobs:
         working-directory: backend
         run: bunx prisma db push
 
-      # Build backend (NestJS)
+      # Build backend
       - name: Build backend
         working-directory: backend
         run: bun run build
+      - name: Wait for MongoDB
+        run: |
+          until mongosh --eval "db.adminCommand('ping')" --quiet; do
+            echo "Waiting for MongoDB to be ready..."
+            sleep 5
+          done
 
-        # Run backend tests
+      # Test
       - name: Run backend tests
         working-directory: backend
+        env:
+          DATABASE_URL: mongodb://localhost:27017/pickme
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          VITE_GOOGLE_CLIENT_ID: ${{ secrets.VITE_GOOGLE_CLIENT_ID }}
         run: bunx jest --config jest.config.ts
-
