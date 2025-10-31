@@ -15,12 +15,13 @@ jobs:
         image: mongo:6
         ports:
           - 27017:27017
-        command: ["--replSet", "rs0", "--bind_ip_all"]
         options: >-
           --health-cmd "echo 'db.runCommand({ ping: 1 })' | mongo localhost:27017/test --quiet"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+          --entrypoint sh
+          -c "mongod --replSet rs0 --bind_ip_all"
 
     env:
       DATABASE_URL: mongodb://localhost:27017/pickme?replicaSet=rs0
