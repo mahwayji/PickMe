@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { SIGN_IN_PATH,BASE_PATH } from '@/constants/routes';
@@ -10,36 +10,60 @@ import { useAppDispatch } from '@/store/store';
 import { useCookies } from 'react-cookie';
 import { ACCESS_TOKEN } from '@/constants/cookie';
 import { googleLoginSuccess } from '@/store/slice/authSlice';
+import z from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 
+const formScheme = z.object({
+  email: z.string().min(1, 'Username in required'),
+  password: z.string()
+          .min(8, 'Password must be at least 8 characters')
+          .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+          .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+          .regex(/[0-9]/, 'Password must contain at least one number')
+          .regex(/[\W_]/, 'Password must contain at least one special character (e.g., !@#$%^&*)'),
+  confirmPassword: z.string().min(1, 'Confirm Password is required'),
+}).refine((data) => data.password === data.confirmPassword, {
+        message: "Passwords don't match",
+        path: ['confirmPassword'],
+    })
 const SignUp: React.FC = () => {
-
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const form = useForm({
+    resolver: zodResolver(formScheme),
+    defaultValues: {
+      email: '',
+      password: '',
+      confirmPassword: '',
+    }
+  })
   const [loading, setLoading] = useState(false);
   const [, setCookie] = useCookies([ACCESS_TOKEN]);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (values: z.infer<typeof formScheme>) => {
+    const newUser = {
+      email:values.email,
+      password: values.password,
+    }
     setLoading(true);
     
     try{
-      await axiosInstance.post('/auth/signup', {email, password});
+      await axiosInstance.post('/auth/signup', newUser);
       toast.success('Sign up successful! Please sign in.');
       navigate(SIGN_IN_PATH, { replace: true });
 
     }
     catch (error) {
-      console.error(email, password); //Testing line to see if values are correct
       if (axios.isAxiosError(error)) {
         const errorMessage = error.response?.data?.message || 'Sign up failed'
         toast.error(errorMessage);
       } else {
         toast.error('An unexpected error occurred');
       }
-    } 
-    setLoading(false);
+    }
+    setLoading(false); 
   };
 
  useEffect(() => {
@@ -50,11 +74,11 @@ const SignUp: React.FC = () => {
     const checkGoogleLogin = async () => {
       if (success === 'true' && token && email) {
         try {
-          setCookie(ACCESS_TOKEN, token, { path: '/', httpOnly: false});
-          
+          setCookie(ACCESS_TOKEN, token, { path: '/', httpOnly: false});         
           dispatch(googleLoginSuccess({ 
               user: {
                   email: email,
+                  username:'',
                   firstName: '',
                   lastName: '',
                   isAdmin: false,
@@ -78,7 +102,7 @@ const SignUp: React.FC = () => {
   }, [setCookie, navigate]); 
 
   return (
-    <div className="h-screen flex items-center justify-center p-4 bg-background">
+    <div className="h-screen flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <h1 className="text-center text-5xl font-italianno mb-8 text-foreground">PickMe</h1>
         
@@ -121,35 +145,50 @@ const SignUp: React.FC = () => {
               </div>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <Input
-                type="email"
-                placeholder="Enter email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="bg-background"
+            <Form {...form}>
+              <form onSubmit = {form.handleSubmit(onSubmit)} className = 'flex flex-col space-y-4'>
+                <FormField
+                  control = {form.control}
+                  name = 'email'
+                  render = {({field}) => (
+                    <FormItem>
+                        <FormControl>
+                          <Input placeholder = "email" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                  )}
+                  />
+                 <FormField 
+                  control={form.control}
+                  name = "password"
+                  render = {({field}) => (
+                      <FormItem>
+                          <FormControl>
+                              <Input type = 'password' placeholder = "Password" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                      </FormItem>
+                  )}
               />
-              
-              <Input
-                type="password"
-                placeholder="Enter password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="bg-background"
+
+              <FormField 
+                  control={form.control}
+                  name = "confirmPassword"
+                  render = {({field}) => (
+                      <FormItem>
+                          <FormControl>
+                              <Input type = "password" placeholder = "Confirm Password" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                      </FormItem>
+                  )}
               />
-
-
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={loading}
-            >
-              Continue
-            </Button>
-          </form>
-
+              <Button type = "submit" className = 'w-full' disabled = {loading}>
+                Continue
+              </Button>
+              </form>
+            </Form>
           <p className="text-center text-sm text-muted-foreground mt-6">
             Already have an account?{' '}
             <Link to= {SIGN_IN_PATH} className="text-foreground underline">
