@@ -21,7 +21,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
           --entrypoint bin/sh
-          -c "mongod --replSet rs0 --bind_ip_all"
+          -c "mongod --bind_ip_all"
 
     env:
       DATABASE_URL: mongodb://localhost:27017/pickme?replicaSet=rs0
