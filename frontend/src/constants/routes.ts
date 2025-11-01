@@ -2,8 +2,8 @@ export const BASE_PATH = '/'
 
 // Profile
 export const PROFILE_BASE_PATH = BASE_PATH + 'p'
-export const PROFILE_INFO_PATH = PROFILE_BASE_PATH + '/:userId'
-
+export const PROFILE_INFO_PATH = PROFILE_BASE_PATH + '/:username'
+export const SECTION_PATH = PROFILE_INFO_PATH + '/:sectionId'
 // Items
 export const ITEM_BASE_PATH = BASE_PATH + 'item'
 export const ITEM_INFO_PATH = ITEM_BASE_PATH + '/:itemId'

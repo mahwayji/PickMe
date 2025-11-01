@@ -57,6 +57,7 @@ const SignIn: React.FC = () => {
           dispatch(googleLoginSuccess({ 
               user: {
                   email: email,
+                  username: '',
                   firstName: '',
                   lastName: '',
                   isAdmin: false,

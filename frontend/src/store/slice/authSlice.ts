@@ -6,6 +6,7 @@ import type { PayloadAction } from '@reduxjs/toolkit'
 
 export interface UserState {
   email: string
+  username: string
   firstName: string
   lastName: string
   isAdmin: boolean
