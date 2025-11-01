@@ -1,0 +1,11 @@
+﻿{
+  "title": "Case Study A",
+  "description": "before/after",
+  "tags": ["ui", "landing"],
+  "thumbnail": "https://picsum.photos/id/1003/400/240",
+  "blocks": [
+    { "type": "text",  "text": "Goal: improve conversion", "style": { "weight": "medium" } },
+    { "type": "image", "url": "https://picsum.photos/id/1004/800/600", "caption": "Before" },
+    { "type": "video", "url": "https://samplelib.com/lib/preview/mp4/sample-5s.mp4", "muted": true, "controls": true }
+  ]
+}
