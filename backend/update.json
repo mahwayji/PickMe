@@ -1,0 +1,7 @@
+﻿{
+  "title": "Case Study A  v2",
+  "blocks": [
+    { "type": "image", "url": "https://picsum.photos/id/1011/800/600", "caption": "After" },
+    { "type": "text",  "text": "+22% CTR", "style": { "weight": "bold" } }
+  ]
+}
