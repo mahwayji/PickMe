@@ -1,13 +1,16 @@
 import SideBar from '@/components/utils/SideBar'
-import { ThemeToggle } from '@/components/utils/ThemeTogglebutton'
 import React from 'react'
+import ItemMedia from '../Item/ItemFeed'
 
 const Home : React.FC= () => {
   return (
-    <div>
+    <div >
         <SideBar />
-        Home
-        <ThemeToggle />
+        <div className='flex flex-row items-center justify-around p-4'>
+
+          <ItemMedia />
+        </div >
+
     </div>
   )
 }
