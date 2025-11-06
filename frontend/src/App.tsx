@@ -2,7 +2,7 @@ import { Route, Routes, useNavigate } from 'react-router-dom'
 import './App.css'
 import { Suspense, useEffect, useState } from 'react'
 import Loading from './pages/Loading'
-import { ADMIN_DASHBOARD_PATH, BASE_PATH, NOT_FOUND_PATH, PROFILE_INFO_PATH, SIGN_IN_PATH, SIGN_UP_PATH } from './constants/routes'
+import { ADMIN_DASHBOARD_PATH, BASE_PATH, ITEM_INFO_PATH, NOT_FOUND_PATH, PROFILE_INFO_PATH, SIGN_IN_PATH, SIGN_UP_PATH } from './constants/routes'
 import { toast, Toaster } from 'sonner'
 import Home from './pages/Home/Home'
 import Profile from './pages/Profile/Profile'
@@ -19,6 +19,7 @@ import AdminProtected from './components/utils/AdminProtected'
 import { useAppDispatch } from './store/store'
 import { ACCESS_TOKEN } from './constants/cookie'
 import { me } from './store/slice/authSlice'
+import ItemView from './pages/Item/ItemView'
 
 function App() {
   const [isServerDown, setServerDown] = useState<boolean>(false)
@@ -57,7 +58,8 @@ function App() {
               <main className = "flex-1">
                   <Routes>
                       <Route path = {BASE_PATH} element = {<Home/>} />
-                
+                      {/* items */}
+                      <Route path = {ITEM_INFO_PATH} element = {<ItemView />} />
                       <Route path = {PROFILE_INFO_PATH} element = {<Profile />} />
                 
                       <Route path = {SIGN_IN_PATH} element={<SignIn />} />
