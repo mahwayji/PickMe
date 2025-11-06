@@ -15,6 +15,9 @@ export class UserService {
     }
 
     async createUser(user: User) {
+        if(await this.prisma.user.findUnique({where: {username: user.username}}))
+            throw new Error('The username has already been used')
+    
         const hashedPassword = await bcrypt.hash(user.password, BCRYPT_SALT_ROUNDS)
         user.password = hashedPassword
 
@@ -58,5 +61,20 @@ export class UserService {
         }
 
         return result;
+    }
+
+    async updateUser(id: string, body: User){
+        if (!await this.prisma.user.findUnique({where: {id: id}}))
+                throw new NotFoundException("User not found");
+            
+        const user = await this.prisma.user.findUnique({where: {username: body.username}});
+        if(user?.id !== id) 
+                throw new Error("The username has already been used")
+
+        await this.prisma.user.update({
+            where: {id: id},
+            data: body,
+        })
+    
     }
 }
