@@ -1,23 +1,26 @@
-# Stage 1: Build
+# ---------- Stage 1: Build ----------
 FROM oven/bun:latest AS builder
+
 WORKDIR /app
 
-# Install deps
-COPY package.json bun.lock ./
+# Copy and install dependencies
+COPY bun.lock package.json ./
 RUN bun install
 
-# Copy source
+# Copy the rest of the frontend code
 COPY . .
 
-# Build Vite app
+# Build React app
 RUN bun run build
 
-# Stage 2: Nginx to serve static files
-FROM nginx:alpine AS runner
-WORKDIR /usr/share/nginx/html
+# ---------- Stage 2: Serve ----------
+FROM nginx:alpine
 
-# Copy dist
-COPY --from=builder /app/dist .
+# Copy built files from builder
+COPY --from=builder /app/dist /usr/share/nginx/html
 
+# Expose port 80 for serving
 EXPOSE 80
+
+# Run nginx
 CMD ["nginx", "-g", "daemon off;"]
