@@ -4,7 +4,7 @@ import { Suspense, useEffect, useState } from 'react'
 import Loading from './pages/Loading'
 import { ADMIN_DASHBOARD_PATH, BASE_PATH, NOT_FOUND_PATH, PROFILE_INFO_PATH,
          SIGN_IN_PATH, SIGN_UP_PATH, 
-         ITEM_CREATE_PATH, ITEM_EDIT_PATH } from './constants/routes'
+         ITEM_CREATE_PATH, ITEM_EDIT_PATH, } from './constants/routes'
 import { toast, Toaster } from 'sonner'
 import Home from './pages/Home/Home'
 import Profile from './pages/Profile/Profile'
