@@ -18,7 +18,6 @@ export default function CreateItemModal() {
 
   const titleCount = useMemo(() => `${title.length}/60`, [title])
   const descCount = useMemo(() => `${desc.length}/500`, [desc])
-
   const onClose = () => nav(-1)
 
   const addTag = () => {
