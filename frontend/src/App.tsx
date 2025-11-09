@@ -11,7 +11,6 @@ import Profile from './pages/Profile/Profile'
 import SignIn from './pages/Auth/SignIn'
 import SignUp from './pages/Auth/SignUp'
 import AdminDashBoard from './pages/Admin/DashBoard'
-import CreateSectionPage from './pages/Sections/CreateSectionPage'
 import CreateItemModal from './pages/Item/CreateItemModal'
 import EditItemPage from './pages/Item/EditItemPage'
 import NotFound from './pages/NotFound'
@@ -67,9 +66,7 @@ function App() {
                 <Routes location={background || location}>
                     <Route path = {BASE_PATH} element = {<Home/>} />
               
-                    <Route path = {PROFILE_INFO_PATH} element = {<Profile />}>
-                      <Route path="section/new" element={<CreateSectionPage />} />
-                    </Route>
+                    <Route path = {PROFILE_INFO_PATH} element = {<Profile />}/>
               
                     <Route path = {SIGN_IN_PATH} element={<SignIn />} />
                     <Route path = {SIGN_UP_PATH} element={<SignUp />} /> 

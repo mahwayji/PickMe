@@ -6,7 +6,7 @@ import { toast } from 'sonner'
 import { createItem } from '@/services/item'
 
 export default function CreateItemModal() {
-  const { username = '', sectionId = '' } = useParams()
+  const {sectionId = '' } = useParams()
   const nav = useNavigate()
 
   const [file, setFile] = useState<File | null>(null) // wait for real upload
