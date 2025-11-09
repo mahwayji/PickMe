@@ -23,7 +23,6 @@ import AdminProtected from './components/utils/AdminProtected'
 import { useAppDispatch } from './store/store'
 import { ACCESS_TOKEN } from './constants/cookie'
 import { me } from './store/slice/authSlice'
-import ItemView from './pages/Item/ItemView'
 
 function App() {
   const [isServerDown, setServerDown] = useState<boolean>(false)
