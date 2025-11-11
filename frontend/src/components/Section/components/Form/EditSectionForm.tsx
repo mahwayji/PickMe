@@ -52,7 +52,7 @@ export const EditSectionForm: React.FC<Props> = ({ open, setOpen, data, setData,
                 toast.error('User ID is required to create a section')
                 return
             }
-            const res = await axiosInstance.post('/section/create', values)
+            const res = await axiosInstance.post(`/section/edit${sectionId}`, values)
             setData([...data, res.data])
             toast.success('Section created successfully')
             setOpen(false)
