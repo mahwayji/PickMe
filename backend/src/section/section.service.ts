@@ -28,6 +28,17 @@ export class SectionService {
         }
     }
 
+    async getSectionById(sectionId: string) {
+        try {
+            const section = await this.prisma.section.findUnique({
+                where: { id: sectionId },
+            })
+            return section
+        } catch (error) {
+            throw new NotFoundException('Section not found')
+        }
+    }
+
     async deleteSection(sectionId: string) {
         try {
             await this.prisma.section.delete({

@@ -1,8 +1,9 @@
 import { z } from 'zod'
-import { useForm } from 'react-hook-form'
+import { useForm} from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { isAxiosError } from 'axios'
 import { toast } from 'sonner'
+import React, { useEffect } from 'react'
 
 import { axiosInstance } from '@/lib/axios'
 import type { Section } from "@/types/section";
@@ -25,49 +26,69 @@ type Props = {
 }
 
 const formSchema = z.object({
-    ownerId : z.string().min(1, '**Owner ID is required'),
     title: z.string().min(1, '**Title is required'),
     description: z.string().min(1, '**Description is required'),
     coverMediaId: z.any().optional(),
 })
 
 
+
 export const EditSectionForm: React.FC<Props> = ({ open, setOpen, data, setData, userId, sectionId }: Props) => {
+
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             title: '',
             description: '',
             coverMediaId: '',
-            ownerId: userId
         },
     })
 
-    const onSubmit = async (values: z.infer<typeof formSchema>) => {
-        toast.success('Creating section...')
+    const fetchSectionById = async () => {
         try {
-            values.ownerId = userId;
-            console.log('Creating section with values:', values);
+            const res = await axiosInstance.get(`/section/${sectionId}`);
+
+            form.reset({
+                title: res.data.title,
+                description: res.data.description,
+                coverMediaId: res.data.coverMediaId,
+            })
+        } catch (error) {
+            console.error('Error fetching section by ID:', error);
+        }
+    }
+
+    useEffect(() => {
+        if (sectionId) {
+            console.log('Fetching section data for ID:', sectionId);
+            fetchSectionById()
+    }
+  }, [sectionId])
+
+    const onSubmit = async (values: z.infer<typeof formSchema>) => {
+        toast.success('Updating section...')
+        try {
+            console.log('Updating section with values:', values);
             if (!userId) {
-                toast.error('User ID is required to create a section')
+                toast.error('Log in is required to create a section')
                 return
             }
-            const res = await axiosInstance.post(`/section/edit${sectionId}`, values)
+            const res = await axiosInstance.patch(`/section/update/${sectionId}`, values)
             setData([...data, res.data])
-            toast.success('Section created successfully')
+            toast.success('Section updated successfully')
             setOpen(false)
-            form.reset()
         } catch (error) {
             if (isAxiosError(error)) {
-                toast.error(error.response?.data?.message || 'Failed to create section')
+                toast.error(error.response?.data?.message || 'Failed to update section')
             } else {
-                toast.error('Failed to create section')
+                toast.error('Failed to update section')
             }
         }
     }
 
 
     return ( 
+        (sectionId) &&
         <Dialog open={open} onOpenChange={setOpen} >
             <DialogContent className="rounded-full [&>button]:hidden">
                 <Form {...form}>
@@ -175,7 +196,14 @@ export const EditSectionForm: React.FC<Props> = ({ open, setOpen, data, setData,
                     </form>
                 </Form>
             </DialogContent>
-        </Dialog>
+        </Dialog>)  ||
+        (!sectionId)&&(<div>
+            <Dialog open={open} onOpenChange={setOpen} >
+            <DialogContent className="rounded-full [&>button]:hidden">
+                <Label className='font-normal text-lg text-black-1000 text-center '>No section selected to edit.</Label>
+            </DialogContent>
+            </Dialog>
 
-    )
+        </div>  
+        )
 }

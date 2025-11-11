@@ -7,17 +7,23 @@ import { AuthGuard } from "@nestjs/passport";
 export class SectionController {
     constructor(private readonly sectionService: SectionService) {}
 
-    @Get(':id')
+    @Get('user/:id')
     async getSection(@Param('id') ownerId: string) {
         return await this.sectionService.getSectionByOwnerId(ownerId);
     }
 
-    @Patch('/update/:sectionId')
+    @Get(':sectionId')
+    async getSectionById(@Param('sectionId') sectionId: string) {
+        return await this.sectionService.getSectionById(sectionId);
+    }
+
+
+    @Patch('update/:sectionId')
     async updateSection(@Param('sectionId') sectionId: string, @Body() data: Partial<sectionDto>) {
         return await this.sectionService.updateSection(sectionId, data);
     }
 
-    @Delete('/delete/:sectionId')
+    @Delete('delete/:sectionId')
     async deleteSection(@Param('sectionId') sectionId: string) {
         return await this.sectionService.deleteSection(sectionId);
     }

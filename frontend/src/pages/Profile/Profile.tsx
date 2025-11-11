@@ -12,9 +12,6 @@ const Profile: React.FC = () => {
   // Fake data for section creation
   const fakeData = {title: 'Sample Section', description: 'This is a sample section description.', coverMediaId: ''};
 
-  // Example section ID for deletion test
-  const sectionId = 'cmhs6whc1000nvtawabcwfajq'; 
-
   const [sectionData, setSectionData] = React.useState<Section[]>([]);
   const [ownerPageId, setOwnerPageId] = React.useState<string | null>(null);
   const [userId, setUserId] = React.useState<string | null>(null);
@@ -23,6 +20,9 @@ const Profile: React.FC = () => {
   const [sectionIdToEdit, setSectionIdToEdit] = React.useState<string>('');
 
   const {username} = useParams(); // username of owner profile page
+
+  // Example section ID for deletion test
+  const sectionId = sectionData.length > 0 ? sectionData[0].id : ''; 
 
   const fetchOwnerPageId = async () => {
       try {
@@ -48,7 +48,7 @@ const Profile: React.FC = () => {
 
     const fetchSection = async () => {
       try{
-            const res = await axiosInstance.get(`/section/${ownerPageId}` )
+            const res = await axiosInstance.get(`/section/user/${ownerPageId}` )
             console.log(res.data);
             setSectionData(res.data);
             toast.success('Fetch section successful!');
@@ -82,7 +82,7 @@ const Profile: React.FC = () => {
   const handleFetchSection = async () => {
     console.log('Test button clicked');
     try{
-          const res = await axiosInstance.get(`/section/${ownerPageId}` )
+          const res = await axiosInstance.get(`/section/user/${ownerPageId}` )
           console.log(res.data);
           toast.success('Fetch section successful!');
           
@@ -138,6 +138,10 @@ const Profile: React.FC = () => {
   }
   const handleOpenEditForm = async () => {
     console.log('Test button clicked');
+    if (ownerPageId!== userId) {
+      toast.error('Youa re not owner of this profile page');
+      return;
+    }
     setSectionIdToEdit(sectionId);
     setIsEditSectionFormOpen(true);
   }
