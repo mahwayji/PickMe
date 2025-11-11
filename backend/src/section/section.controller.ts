@@ -8,7 +8,7 @@ export class SectionController {
     constructor(private readonly sectionService: SectionService) {}
 
     @Get('user/:id')
-    async getSection(@Param('id') ownerId: string) {
+    async getSectionByUserId(@Param('id') ownerId: string) {
         return await this.sectionService.getSectionByOwnerId(ownerId);
     }
 
