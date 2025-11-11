@@ -26,8 +26,6 @@ type Props = {
     sectionId: string
 }
 const formSchema = z.object({
-    ownerId : z.string().min(1, '**Owner ID is required'),
->>>>>>> ffb8a06 (feat:section api + create form)
     title: z.string().min(1, '**Title is required'),
     description: z.string().min(1, '**Description is required'),
     coverMediaId: z.any().optional(),
