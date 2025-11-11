@@ -17,7 +17,7 @@ export class UserController {
     @Get(':username')
     @UseGuards(AuthGuard('jwt'))
     async getUserByUsername(@Param('username') username: string){
-        return await this.userService.getUserByUsername
+        return await this.userService.getUserByUsername(username);
     }
     @Post()
     async createUser(@Body() user: User){
