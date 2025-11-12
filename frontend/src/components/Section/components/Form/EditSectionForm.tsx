@@ -21,6 +21,7 @@ type Props = {
     setOpen: (open: boolean) => void
     data: Section[]
     setData: React.Dispatch<React.SetStateAction<Section[]>>
+    setLoading: React.Dispatch<React.SetStateAction<boolean>>
     userId: string
     sectionId: string
 }
@@ -33,7 +34,7 @@ const formSchema = z.object({
 
 
 
-export const EditSectionForm: React.FC<Props> = ({ open, setOpen, data, setData, userId, sectionId }: Props) => {
+export const EditSectionForm: React.FC<Props> = ({ open, setOpen, data, setData,setLoading, userId, sectionId }: Props) => {
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -67,6 +68,7 @@ export const EditSectionForm: React.FC<Props> = ({ open, setOpen, data, setData,
 
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
         toast.success('Updating section...')
+        setLoading(true);
         try {
             console.log('Updating section with values:', values);
             if (!userId) {
@@ -76,6 +78,7 @@ export const EditSectionForm: React.FC<Props> = ({ open, setOpen, data, setData,
             const res = await axiosInstance.patch(`/section/update/${sectionId}`, values)
             setData([...data, res.data])
             toast.success('Section updated successfully')
+            setLoading(false);
             setOpen(false)
         } catch (error) {
             if (isAxiosError(error)) {

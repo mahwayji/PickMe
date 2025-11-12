@@ -7,6 +7,8 @@ import { useEffect, } from 'react'
 import { CreateSectionForm } from '@/components/Section/components/Form/CreateSectionForm'
 import { EditSectionForm } from '@/components/Section/components/Form/EditSectionForm'
 import type { Section } from '@/types/section'
+import { SectionView } from '@/components/Section/SectionView'
+import { useRef } from 'react'
 
 const Profile: React.FC = () => {
   // Fake data for section creation
@@ -18,8 +20,11 @@ const Profile: React.FC = () => {
   const [isCreateSectionFormOpen, setIsCreateSectionFormOpen] = React.useState<boolean>(false);
   const [isEditSectionFormOpen, setIsEditSectionFormOpen] = React.useState<boolean>(false);
   const [sectionIdToEdit, setSectionIdToEdit] = React.useState<string>('');
+  const [isLoading, setIsLoading] = React.useState<boolean>(true);
 
   const {username} = useParams(); // username of owner profile page
+
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // Example section ID for deletion test
   const sectionId = sectionData.length > 0 ? sectionData[0].id : ''; 
@@ -59,10 +64,12 @@ const Profile: React.FC = () => {
     }
 
   useEffect(() => {
+    setIsLoading(true);
     fetchUserId();
     if (username) fetchOwnerPageId();
     if (ownerPageId) fetchSection();
-  }, [username, ownerPageId]);
+    setIsLoading(false);
+  }, [username, ownerPageId, isLoading]);
   
  
   const handleSubmit = async () => {
@@ -162,8 +169,9 @@ const Profile: React.FC = () => {
   }
 
   return (
-    <div>
-      <div>Profile
+    <div ref={containerRef} className="w-full h-screen overflow-y-auto pb-20" >
+
+      <div className="w-full">Profile
         <Button onClick={handleSubmit}>Test Profile fetch</Button>
         <Button onClick={handleFetchSection}>Test Section fetch</Button>
         <Button onClick={handleCreateSection}>Test Section create</Button>
@@ -190,12 +198,18 @@ const Profile: React.FC = () => {
           setOpen={setIsEditSectionFormOpen}
           data={sectionData}
           setData={setSectionData}
+          setLoading={setIsLoading}
           userId={userId ? userId: ''}
           sectionId={sectionIdToEdit ?sectionIdToEdit : ''}
         />
       )}
 
+      <div className='justify-center items-center flex'>
+        <SectionView sectionData={sectionData} isLoading={isLoading} setOpenCreateSectionForm={setIsCreateSectionFormOpen} setOpenEditSectionForm={setIsEditSectionFormOpen} setSectionIdToEdit={setSectionIdToEdit}/>
+      </div>
+
     </div>
+    
   );
 }
 
