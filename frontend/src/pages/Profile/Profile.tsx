@@ -1,9 +1,168 @@
 // frontend/src/pages/Profile.tsx
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import SideBar from '@/components/utils/SideBar'
 import { User, Send } from 'lucide-react'
+import { axiosInstance } from '@/lib/axios';
+import type { Section } from '@/types/section';
+import { useParams } from 'react-router-dom';
+import { toast } from 'sonner';
 
 const Profile: React.FC = () => {
+  // Fake data for section creation
+  const fakeData = {title: 'Sample Section', description: 'This is a sample section description.', coverMediaId: ''};
+
+  const [sectionData, setSectionData] = React.useState<Section[]>([]);
+  const [ownerPageId, setOwnerPageId] = React.useState<string | null>(null);
+  const [userId, setUserId] = React.useState<string | null>(null);
+  const [isCreateSectionFormOpen, setIsCreateSectionFormOpen] = React.useState<boolean>(false);
+  const [isEditSectionFormOpen, setIsEditSectionFormOpen] = React.useState<boolean>(false);
+  const [sectionIdToEdit, setSectionIdToEdit] = React.useState<string>('');
+  const [isLoading, setIsLoading] = React.useState<boolean>(true);
+
+  const {username} = useParams(); // username of owner profile page
+
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Example section ID for deletion test
+  const sectionId = sectionData.length > 0 ? sectionData[0].id : ''; 
+
+  const fetchOwnerPageId = async () => {
+      try {
+        const res = await axiosInstance.get(`/user/${username}`);
+        console.log(res.data);
+        const ownerPageId = res.data.id;
+        setOwnerPageId(ownerPageId);
+      } catch (error) {
+        console.error('Error fetching owner page ID:', error);
+      }
+    };
+
+    const fetchUserId = async () => {
+      try {
+        const res = await axiosInstance.get(`/auth/me`);
+        console.log('Fetch user id', res.data.id);
+        setUserId(res.data.id);
+      } catch (error) {
+        console.error('Error fetching user ID:', error);
+      }
+    };
+
+    const fetchSection = async () => {
+      try{
+            const res = await axiosInstance.get(`/section/user/${ownerPageId}` )
+            console.log(res.data);
+            setSectionData(res.data);
+            toast.success('Fetch section successful!');
+          }
+          catch (error) {
+            toast.error('An unexpected error occurred');
+          }
+    }
+
+  useEffect(() => {
+    setIsLoading(true);
+    fetchUserId();
+    if (username) fetchOwnerPageId();
+    if (ownerPageId) fetchSection();
+    setIsLoading(false);
+  }, [username, ownerPageId, isLoading]);
+  
+ 
+  const handleSubmit = async () => {
+    console.log('Test button clicked');
+    try{
+          const result = await axiosInstance.get('/auth/me');
+          toast.success('Fetch profile successful!');
+          console.log(result.data);
+          console.log(username);
+          
+        }
+        catch (error) {
+          toast.error('An unexpected error occurred');
+          
+        } 
+  }
+  const handleFetchSection = async () => {
+    console.log('Test button clicked');
+    try{
+          const res = await axiosInstance.get(`/section/user/${ownerPageId}` )
+          console.log(res.data);
+          toast.success('Fetch section successful!');
+          
+        }
+        catch (error) {
+          toast.error('An unexpected error occurred');
+          
+        } 
+  
+  }
+  const handleCreateSection = async () => {
+    const body = {
+      ownerId: userId,
+      title: fakeData.title,
+      description: fakeData.description,
+      coverMediaId: fakeData.coverMediaId,
+    };
+    console.log(body);
+    try{
+          const res = await axiosInstance.post(`/section/create`, body )
+          toast.success('Section create!')
+          console.log(res.data);
+        }
+        catch (error) {
+          toast.error('An unexpected error occurred');
+          
+        } 
+  
+  }
+  const handleDeleteSection = async () => {
+    console.log('Test button clicked');
+    try{
+          const res = await axiosInstance.delete(`/section/delete/${sectionId}` )
+          toast.success(res.data.message);
+          
+        }
+        catch (error) {
+          toast.error('An unexpected error occurred');
+          
+        } 
+  
+  }
+
+  const handleOpenCreateForm = async () => {
+    if (ownerPageId!== userId) {
+      toast.error('Youa re not owner of this profile page');
+      return;
+    }
+    console.log('Test button clicked');
+    setIsCreateSectionFormOpen(true);
+    
+  }
+  const handleOpenEditForm = async () => {
+    console.log('Test button clicked');
+    if (ownerPageId!== userId) {
+      toast.error('Youa re not owner of this profile page');
+      return;
+    }
+    setSectionIdToEdit(sectionId);
+    setIsEditSectionFormOpen(true);
+  }
+
+  const handleUpdateSection = async () => {
+    console.log('Test button clicked');
+    const updateData = {
+      title: 'Updated Section Title',
+      description: 'Updated description for the section.',
+    };
+    try{
+          const res = await axiosInstance.patch(`/section/update/${sectionId}`, updateData )
+          toast.success(res.data.message);
+      }
+    catch (error) {
+      toast.error('An unexpected error occurred');
+    }
+  }
+
   return (
     <div className="flex flex-row bg-background text-foreground min-h-screen">
       {/* Sidebar */}
