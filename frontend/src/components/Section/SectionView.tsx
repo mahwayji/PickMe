@@ -3,18 +3,26 @@ import { Wrench } from 'lucide-react'
 import { Plus } from 'lucide-react'
 import section404noimage from '@/images/section404noimg.gif'
 import type { Section } from '@/types/section'
+import { toast } from 'sonner'
 
 type Props = {
     sectionData: Section[]
     isLoading: boolean
+    ownerPageId: string | null
+    userId: string | null
     setOpenCreateSectionForm: (open: boolean) => void
     setOpenEditSectionForm: (open: boolean) => void
     setSectionIdToEdit: (sectionId: string) => void
 }
 
-export const SectionView: React.FC<Props> = ({ sectionData, isLoading,setOpenCreateSectionForm,setOpenEditSectionForm,setSectionIdToEdit }: Props) => {
+export const SectionView: React.FC<Props> = ({ sectionData, isLoading,ownerPageId,userId, setOpenCreateSectionForm,setOpenEditSectionForm,setSectionIdToEdit }: Props) => {
 
     const handleCreateSection = async () => {
+        if (ownerPageId!=userId) {
+            toast.error('You are not owner of this profile page')
+            return;
+        }
+        
         setOpenCreateSectionForm(true);
     }
 

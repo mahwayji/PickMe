@@ -101,11 +101,6 @@ const Profile: React.FC = () => {
   
   }
   const handleCreateSection = async () => {
-    console.log('Test button clicked');
-    if (ownerPageId!== userId) {
-      toast.error('Youa re not owner of this profile page');
-      return;
-    }
     const body = {
       ownerId: userId,
       title: fakeData.title,
@@ -139,6 +134,10 @@ const Profile: React.FC = () => {
   }
 
   const handleOpenCreateForm = async () => {
+    if (ownerPageId!== userId) {
+      toast.error('Youa re not owner of this profile page');
+      return;
+    }
     console.log('Test button clicked');
     setIsCreateSectionFormOpen(true);
     
@@ -205,7 +204,14 @@ const Profile: React.FC = () => {
       )}
 
       <div className='justify-center items-center flex'>
-        <SectionView sectionData={sectionData} isLoading={isLoading} setOpenCreateSectionForm={setIsCreateSectionFormOpen} setOpenEditSectionForm={setIsEditSectionFormOpen} setSectionIdToEdit={setSectionIdToEdit}/>
+        <SectionView 
+          sectionData={sectionData} 
+          isLoading={isLoading} 
+          ownerPageId={ownerPageId} 
+          userId={userId} 
+          setOpenCreateSectionForm={setIsCreateSectionFormOpen} 
+          setOpenEditSectionForm={setIsEditSectionFormOpen} 
+          setSectionIdToEdit={setSectionIdToEdit}/>
       </div>
 
     </div>
