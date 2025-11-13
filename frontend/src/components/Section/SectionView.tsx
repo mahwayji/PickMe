@@ -32,6 +32,7 @@ export const SectionView: React.FC<Props> = ({ sectionData, isLoading,ownerPageI
         <div className="grid grid-cols-3 gap-0.5 w-[900px] justify-center ">
             {sectionData.map((section) => (
                 <Card key={section.id} className="w-[300px] h-[400px] relative rounded-none border-none hover:shadow-md transition-shadow cursor-pointer group">  
+                    {(ownerPageId === userId) &&
                     <div className="top-2 left-63 w-[40px] bg-white rounded-full absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity aspect-square"
                     onClick={(e) => {
                         setOpenEditSectionForm(true);
@@ -39,7 +40,7 @@ export const SectionView: React.FC<Props> = ({ sectionData, isLoading,ownerPageI
                         e.stopPropagation();
                     }} >
                         <Wrench size={24} className="text-gray-600" />
-                    </div>
+                    </div>}
                     <img
                         src={section.coverMediaId ? section.coverMediaId : section404noimage} 
                         className="w-full h-full object-cover"
@@ -47,11 +48,15 @@ export const SectionView: React.FC<Props> = ({ sectionData, isLoading,ownerPageI
                     <CardContent>
                         
                     </CardContent>
+
                 </Card>
+                
             ))}
+            {ownerPageId === userId && (
             <Card className="w-[300px] h-[400px] flex items-center justify-center rounded-none border-none cursor-pointer" style={{ backgroundColor: '#D9D9D9' }} onClick={handleCreateSection}>  
                 <Plus size={64} className="text-gray-400" strokeWidth={0.75} />
-            </Card>
+            </Card> 
+            )}
         </div>
         </div>
     )

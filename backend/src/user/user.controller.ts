@@ -19,6 +19,7 @@ export class UserController {
     async getUserByUsername(@Param('username') username: string){
         return await this.userService.getUserByUsername(username);
     }
+    
     @Post()
     async createUser(@Body() user: User){
         return this.userService.createUser(user)

@@ -31,7 +31,6 @@ const Profile: React.FC = () => {
 
   const fetchOwnerPageId = async () => {
       try {
-        console.log('Fetching owner page ID for username:', username);
         const res = await axiosInstance.get(`/user/${username}`);
         console.log(res.data);
         const ownerPageId = res.data.id;
@@ -44,7 +43,7 @@ const Profile: React.FC = () => {
     const fetchUserId = async () => {
       try {
         const res = await axiosInstance.get(`/auth/me`);
-        console.log(res.data.id);
+        console.log('Fetch user id', res.data.id);
         setUserId(res.data.id);
       } catch (error) {
         console.error('Error fetching user ID:', error);
