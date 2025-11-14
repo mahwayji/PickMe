@@ -5,8 +5,8 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { ItemsModule } from './items/items.module';
 import { ItemBlocksModule } from './item-blocks/item-blocks.module';
-import { ProfileController } from './profile/profile.controller';
 import { ProfileModule } from './profile/profile.module';
+import { SectionModule } from './section/section.module';
 
 @Module({
   imports: [
@@ -15,6 +15,7 @@ import { ProfileModule } from './profile/profile.module';
     ItemsModule,
     ItemBlocksModule,
     ProfileModule,
+    SectionModule,
   ],
   controllers: [AppController],
   providers: [AppService],

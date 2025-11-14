@@ -5,6 +5,8 @@ import { PrismaService } from "src/prisma/prisma.service";
 import * as bcrypt from "bcrypt";
 import { User } from "./entities/user.entity";
 import { NotFoundException } from "@nestjs/common";
+import { success } from "zod";
+import { find } from "rxjs";
 
 @Injectable()
 export class UserService {
@@ -31,7 +33,7 @@ export class UserService {
         const result = await this.prisma.user.findUnique({ 
             where: { id } 
         });
-
+        
         if (!result) {
             throw new NotFoundException('User not found');
         }
@@ -43,7 +45,7 @@ export class UserService {
         const result = await this.prisma.user.findUnique({ 
             where: { username: username } 
         });
-
+    
         if (!result) {
             throw new NotFoundException('User not found');
         }
