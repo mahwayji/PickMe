@@ -1,5 +1,5 @@
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { ITEM_INFO_PATH } from '@/constants/routes'
+import { ITEM_INFO_PATH, PROFILE_INFO_PATH } from '@/constants/routes'
 import { axiosInstance } from '@/lib/axios';
 import type { Item } from '@/types/item';
 import { isAxiosError } from 'axios';
@@ -12,8 +12,6 @@ import RacoonDance from '@/images/coolRacoon.gif'
 import { Button } from '@/components/ui/button';
 import Loading from '../Loading';
 import { demoItems } from './DemoData';
-import { User } from 'lucide-react';
-
 
 
 const ItemMedia: React.FC = () => {
@@ -58,9 +56,13 @@ const ItemMedia: React.FC = () => {
                     <Link to = {ITEM_INFO_PATH.replace(':itemId', item.id)}>
                         <Card className = 'flex-col justify-center'>
                             <CardHeader className = 'flex-row justify-between'>
-                                <div className = 'flex'>
-                                    {/* will add the profile later */}
-                                    <User />
+                                <div className = 'flex items-center'>
+                                    <Link to= {PROFILE_INFO_PATH} >
+                                            <img
+                                            src = 'https://nest-library-api-mahwayji.s3.ap-southeast-2.amazonaws.com/images/doog'
+                                            className="w-10 h-10 rounded-full flex items-center justify-center ring-2 shadow-md"
+                                            />
+                                    </Link>
                                     <CardTitle className = 'text-sm font-semibold px-2'>
                                       profile
                                     </CardTitle>

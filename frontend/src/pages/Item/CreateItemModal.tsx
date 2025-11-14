@@ -40,6 +40,7 @@ export default function CreateItemModal() {
         tags: tags.length ? tags : undefined,
         thumbnail: file ? file: undefined,
       }
+
       await createItem(sectionId, payload)
       toast.success('สร้าง Item สำเร็จ!')
       onClose()

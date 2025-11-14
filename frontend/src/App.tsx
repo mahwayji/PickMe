@@ -70,6 +70,7 @@ function App() {
               
                     <Route path = {PROFILE_INFO_PATH} element = {<Profile />}/>
               
+              
                     <Route path = {SIGN_IN_PATH} element={<SignIn />} />
                     <Route path = {SIGN_UP_PATH} element={<SignUp />} /> 
               
