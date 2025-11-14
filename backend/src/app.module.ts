@@ -5,6 +5,7 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { ItemsModule } from './items/items.module';
 import { ItemBlocksModule } from './item-blocks/item-blocks.module';
+import { SectionModule } from './section/section.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { ItemBlocksModule } from './item-blocks/item-blocks.module';
     AuthModule,
     ItemsModule,
     ItemBlocksModule,
+    SectionModule,
   ],
   controllers: [AppController],
   providers: [AppService],
