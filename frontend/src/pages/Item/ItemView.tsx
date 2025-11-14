@@ -12,6 +12,8 @@ import { demoBlocks, demoItems } from './DemoData'
 import { User } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@radix-ui/react-dropdown-menu'
+import SideBar from '@/components/utils/SideBar'
 
 const ItemView : React.FC= () => {
   const [data, setData] = useState< Item | null>(null)
@@ -50,33 +52,37 @@ const ItemView : React.FC= () => {
   else if (!data) return (<NotFound />)
   
     return (
-    <div className = 'p-4 h-screen overflow-auto'>
-      <Card className = 'flex-col text-left'>
-        
-        <CardHeader>
-          <CardTitle className = 'text-2xl'>
-            section title
-          </CardTitle>
-          <div className = 'flex flex-row justify-between'>
-            <div className = 'flex '>
-              <User />
-              <p className = 'text-sm font-semibold px-2'>
-                profile
-              </p>
-            </div >
-            <CardFooter>
-              <Button variant='outline' className='bg-background'>
-                Contact Me
-              </Button>
-            </CardFooter>
-          </div>
-        </CardHeader>
-      <CardContent>
-        
-        <CardTitle className = 'text-lg'>{data?.title}</CardTitle>
-        <ItemBlocks items={demoBlocks} />
-      </CardContent>
-      </ Card>
+    <div>
+      <SideBar />
+      <div className = 'p-4 h-screen overflow-auto'>
+        <Card className = 'flex-col'>
+          
+          <CardHeader>
+            <CardTitle className = 'text-2xl text-left'>
+              section title
+            </CardTitle>
+            <div className = 'flex flex-row justify-between'>
+              <div className = 'flex '>
+                <User />
+                <p className = 'text-sm font-semibold px-2'>
+                  profile
+                </p>
+              </div >
+              <CardFooter>
+                <Button variant='outline' className='bg-background'>
+                  Contact Me
+                </Button>
+              </CardFooter>
+            </div>
+          </CardHeader>
+        <Separator className="my-4"/>
+        <CardContent>
+          
+          <CardTitle className = 'text-lg'>{data?.title}</CardTitle>
+          <ItemBlocks items={demoBlocks} />
+        </CardContent>
+        </ Card>
+      </div>
     </div>
     
   )

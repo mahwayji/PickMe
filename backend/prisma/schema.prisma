@@ -54,7 +54,6 @@ model User {
   lastName        String
   email           String   @unique
   password        String
-  profilePicture  String?
   isAdmin         Boolean
   createdAt       DateTime @default(now())
   updatedAt       DateTime @default(now())
@@ -65,19 +64,19 @@ model User {
 }
 
 model Profile {
-  id          String     @id @default(cuid()) @map("_id")
-  userId      String     @unique
-  description String?
-  location    String?
-  emailPublic String?
-  url         String?
-  visibility  Visibility  @default(PUBLIC)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  id              String     @id @default(cuid()) @map("_id")
+  userId           String     @unique
+  profileMediaId  String? 
+  description     String?
+  location        String?
+  emailPublic     String?
+  url             String?
+  visibility      Visibility  @default(PUBLIC)
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
 
   user        User       @relation(fields: [userId], references: [id])
   shareLinks  ShareLink[]
-  media       Media[]    @relation("ProfileToMedia")
 }
 
 model Section {
@@ -141,7 +140,6 @@ model ItemBlock {
 model Media {
   id         String     @id @default(cuid()) @map("_id")
   ownerId    String?    // ใครอัปโหลด (อาจว่าง ถ้าเป็นระบบ)
-  profileId  String?    // ผูกกับโปรไฟล์ไหน (optional)
   fileName   String
   url        String     @unique
   type       MediaType
@@ -152,7 +150,6 @@ model Media {
   usedCount  Int        @default(0) // นับการอ้างอิงจาก blocks/items/sections
   uploadedAt DateTime   @default(now())
 
-  profile    Profile?   @relation("ProfileToMedia", fields: [profileId], references: [id])
   user       User?      @relation("UserMedia", fields: [ownerId], references: [id])
 
   // Back-relations
@@ -161,7 +158,6 @@ model Media {
   blockUsedIn   ItemBlock[] @relation("BlockMedia")
 
   @@index([ownerId])
-  @@index([profileId])
 }
 
 /* ---------------- Tags ---------------- */

@@ -21,7 +21,7 @@ export type ItemDto = {
   title: string
   description?: string
   tags?: string[]
-  thumbnailMediaId?: string
+  thumbnailMediaId?: File
 }
 
 export async function getItem(itemId: string) {

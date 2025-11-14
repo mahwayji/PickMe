@@ -28,7 +28,7 @@ export default defineConfig({
     port:8000,
     proxy: {
       '/api/v2': {
-        target: 'https//pickme.cloud',
+        target: 'https://pickme.cloud',
         changeOrigin: true,
         secure: true
       }
