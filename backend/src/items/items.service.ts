@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { MediaType } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { MediaService } from 'src/media/media.service';
 
 //Helper function
 function toIso(d: Date | string | number | null | undefined): string {
@@ -18,7 +19,8 @@ function guessMediaType(url: string): MediaType {
 
 @Injectable()
 export class ItemsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService, 
+              private readonly mediaService: MediaService) {}
 
   private toApiItemShape(item: any) {
     const tags: string[] =
@@ -135,6 +137,7 @@ export class ItemsService {
     return this.toApiItemShape(item);
   }
 
+  async
   //Create Item
   async create(sectionId: string, body: any) {
     const { title, description, tags, thumbnail, blocks } = body ?? {};
@@ -170,7 +173,8 @@ export class ItemsService {
             },
           });
         } else if (b.type === 'image') {
-          const media = await this.ensureMediaByUrl(b.url);
+          
+          const media = await this.mediaService.uploadImage(b.ownerId, b.file);
           await this.prisma.itemBlock.create({
             data: {
               itemId: base.id,
@@ -185,7 +189,7 @@ export class ItemsService {
             },
           });
         } else if (b.type === 'video') {
-          const media = await this.ensureMediaByUrl(b.url);
+          const media = await this.mediaService.uploadImage(b.ownerId, b.file);
           await this.prisma.itemBlock.create({
             data: {
               itemId: base.id,

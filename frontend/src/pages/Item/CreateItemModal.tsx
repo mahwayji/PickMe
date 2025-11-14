@@ -38,8 +38,9 @@ export default function CreateItemModal() {
         title: title.trim().slice(0, 60),
         description: desc.trim() ? desc.trim().slice(0, 500) : undefined,
         tags: tags.length ? tags : undefined,
-        // thumbnailMediaId: (how)
+        thumbnail: file ? file: undefined,
       }
+
       await createItem(sectionId, payload)
       toast.success('สร้าง Item สำเร็จ!')
       onClose()

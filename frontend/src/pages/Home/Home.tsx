@@ -7,7 +7,6 @@ const Home : React.FC= () => {
     <div >
         <SideBar />
         <div className='flex flex-row items-center justify-around p-4'>
-
           <ItemMedia />
         </div >
 

@@ -14,7 +14,7 @@ import type { ItemBlock } from "@/types/itemBlock";
     {
         id: 'b2',
         type: 'image',
-        url: 'https://picsum.photos/800/400',
+        url: 'https://nest-library-api-mahwayji.s3.ap-southeast-2.amazonaws.com/images/IThinkINeedMoreCoffee.jpeg',
         alt: 'Modern furniture set',
         caption: 'Our minimalist furniture collection',
         aspectRatio: '16:9',
@@ -34,19 +34,28 @@ import type { ItemBlock } from "@/types/itemBlock";
     {
         id: 'b4',
         type: 'video',
-        url: 'https://www.w3schools.com/html/mov_bbb.mp4',
-        provider: 'upload',
-        caption: 'Behind the scenes: furniture crafting process',
+        url: 'https://nest-library-api-mahwayji.s3.ap-southeast-2.amazonaws.com/images/weird_ass_bunny.mp4',
         controls: true,
         muted: false,
-        startAt: 0,
-        endAt: 60,
-        aspectRatio: '16:9',
+        width: 500,
+        height: 500,
         orderIndex: 3,
         createdAt: '2025-11-06T09:20:00.000Z',
         updatedAt: '2025-11-06T09:25:00.000Z',
     },
+    {
+        id: 'b5',
+        type: 'image',
+        url: 'https://nest-library-api-mahwayji.s3.ap-southeast-2.amazonaws.com/images/coolRacoon.gif',
+        alt: 'Modern furniture set',
+        caption: 'Our minimalist furniture collection',
+        aspectRatio: '16:9',
+        orderIndex: 1,
+        createdAt: '2025-11-06T09:05:00.000Z',
+        updatedAt: '2025-11-06T09:10:00.000Z',
+    },
     ];
+
 
     export const demoItems: Item[] = [
     {

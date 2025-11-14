@@ -28,13 +28,10 @@ export type ItemBlock =
         id: string;
         type: 'video';
         url: string;
-        provider?: string;
-        caption?: string;
         controls?: boolean;
         muted?: boolean;
-        startAt?: number;
-        endAt?: number;
-        aspectRatio?: string;
+        width: number,
+        height: number,
         orderIndex: number;
         createdAt: string;
         updatedAt: string;
