@@ -24,19 +24,18 @@ const TagPanel: React.FC<TagPanelProps> = ({
     <aside
       aria-label="Tag panel"
       className={[
-        "rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm",
-        "dark:border-zinc-800 dark:bg-zinc-900",
+        "rounded-2xl border border-zinc-400 p-4 shadow-sm",
         className,
       ].join(" ")}
     >
       <div className="mb-3 flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+        <h3 className="text-sm font-semibold">
           {title}
         </h3>
       </div>
 
       {tags.length === 0 ? (
-        <p className="text-xs text-zinc-500 dark:text-zinc-400">
+        <p className="text-xs text-zinc-400">
           ยังไม่มีแท็กให้เลือก
         </p>
       ) : (
@@ -52,8 +51,7 @@ const TagPanel: React.FC<TagPanelProps> = ({
                 onClick={() => handleClick(t)}
                 className={[
                   "w-full rounded-lg border px-3 py-1.5 text-left text-xs transition",
-                  "border-zinc-200 text-zinc-700 hover:bg-zinc-50",
-                  "dark:border-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-800/60",
+                  "border-zinc-400 hover:bg-zinc-400",
                   "truncate", // กันแท็กยาว
                   isActive ? "ring-2 ring-zinc-400/60 dark:ring-zinc-500/60" : "",
                 ].join(" ")}
