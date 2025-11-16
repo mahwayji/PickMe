@@ -1,5 +1,5 @@
 // frontend/src/pages/Profile.tsx
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect} from 'react'
 import SideBar from '@/components/utils/SideBar'
 import { Send } from 'lucide-react'
 import { axiosInstance } from '@/lib/axios';
