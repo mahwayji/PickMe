@@ -38,13 +38,32 @@ export default function InsertBlockToolbar({
   const [view, setView] = useState<View>('menu')
 
   // local text state
-  const [font, setFont] = useState('Inter')
+  const [font, setFont] = useState('Arial, sans-serif')
   const [weight, setWeight] = useState('400')
   const [size, setSize] = useState('20')
   const [color, setColor] = useState('000000')
   const [align, setAlign] = useState<'left' | 'center' | 'right'>('left')
   const [italic, setItalic] = useState(false)
   const [underline, setUnderline] = useState(false)
+
+    const emitTextChange = (override: Partial<TextOptions> = {}) => {
+    if (!onLiveChangeText) return
+
+    const base: TextOptions = {
+      font,
+      weight,
+      size: Number(size),
+      color: color.startsWith('#') ? color : `#${color}`,
+      align,
+      italic,
+      underline,
+    }
+
+    onLiveChangeText({
+      ...base,
+      ...override,
+    })
+  }
 
   const lastSelectedIdRef = useRef<string | null>(null)
 
@@ -70,7 +89,7 @@ export default function InsertBlockToolbar({
     if (selectedBlockId && selectedBlockId !== lastSelectedIdRef.current) {
       lastSelectedIdRef.current = selectedBlockId
       if (initialText) {
-        setFont(initialText.font ?? 'Inter')
+        setFont(initialText.font ?? 'Arial, sans-serif')
         setWeight(normalizeWeight(initialText.weight))
         setSize(String(initialText.size ?? '20'))
         setColor((initialText.color ?? '#000000').replace('#',''))
@@ -78,7 +97,7 @@ export default function InsertBlockToolbar({
         setItalic(!!initialText.italic)
         setUnderline(!!initialText.underline)
       } else {
-        setFont('Inter'); setWeight('400'); setSize('20'); setColor('000000')
+        setFont('Arial, sans-serif'); setWeight('400'); setSize('20'); setColor('000000')
         setAlign('left'); setItalic(false); setUnderline(false)
       }
     }
@@ -93,7 +112,18 @@ export default function InsertBlockToolbar({
     { label: 'Bold',       value: '700' },
   ]
   const sizeOptions = ['12','14','16','18','20','24','28','32','36','48','64']
-  const fontOptions = ['Inter','Prompt','Kanit','Sarabun','Roboto','Poppins','Noto Sans Thai']
+  const fontOptions = [
+    { label: 'Arial',          value: 'Arial, sans-serif' },
+    { label: 'Verdana',        value: 'Verdana, sans-serif' },
+    { label: 'Tahoma',         value: 'Tahoma, sans-serif' },
+    { label: 'Trebuchet MS',   value: '"Trebuchet MS", sans-serif' },
+    { label: 'Times New Roman',     value: '"Times New Roman", serif' },
+    { label: 'Georgia',             value: 'Georgia, serif' },
+    { label: 'Garamond',            value: 'Garamond, serif' },
+    { label: 'Courier New',     value: '"Courier New", monospace' },
+    { label: 'Brush Script MT',   value: '"Brush Script MT", cursive' },
+]
+
 
   const composedText = useMemo<TextOptions>(() => ({
     font,
@@ -104,10 +134,6 @@ export default function InsertBlockToolbar({
     italic,
     underline,
   }), [font, weight, size, color, align, italic, underline])
-
-  useEffect(() => {
-    if (view === 'text') onLiveChangeText?.(composedText)
-  }, [view, composedText, onLiveChangeText])
 
   const backToMenu = () => { onCloseRequested?.(); setView('menu') }
 
@@ -167,9 +193,17 @@ export default function InsertBlockToolbar({
           <select
             className="w-full rounded-2xl border border-border bg-background p-2 outline-none"
             value={font}
-            onChange={(e)=>setFont(e.target.value)}
+            onChange={(e) => {
+              const next = e.target.value
+              setFont(next)
+              emitTextChange({ font: next })
+            }}
           >
-            {fontOptions.map(f => <option key={f} value={f}>{f}</option>)}
+            {fontOptions.map(opt => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
           </select>
 
           {/* Weight + Size */}
@@ -177,7 +211,11 @@ export default function InsertBlockToolbar({
             <select
               className="w-full rounded-2xl border border-border bg-background p-2 outline-none"
               value={weight}
-              onChange={(e)=>setWeight(normalizeWeight(e.target.value))}
+              onChange={(e) => {
+                const next = normalizeWeight(e.target.value)
+                setWeight(next)
+                emitTextChange({ weight: next })
+              }}
             >
               {weightOptions.map(w => (
                 <option key={w.value} value={w.value}>{w.label}</option>
@@ -187,7 +225,11 @@ export default function InsertBlockToolbar({
             <select
               className="w-full rounded-2xl border border-border bg-background p-2 outline-none"
               value={size}
-              onChange={(e)=>setSize(e.target.value)}
+              onChange={(e) => {
+                const next = e.target.value
+                setSize(next)
+                emitTextChange({ size: Number(next) })
+              }}
             >
               {sizeOptions.map(s => <option key={s} value={s}>{s}</option>)}
             </select>
@@ -200,7 +242,12 @@ export default function InsertBlockToolbar({
               className="flex-1 bg-transparent p-2 outline-none"
               placeholder="000000"
               value={color}
-              onChange={(e)=> setColor(e.target.value.replace(/[^0-9a-fA-F#]/g,''))}
+              onChange={(e) => {
+                const next = e.target.value.replace(/[^0-9a-fA-F#]/g, '')
+                setColor(next)
+                const fullColor = next.startsWith('#') ? next : `#${next}`
+                emitTextChange({ color: fullColor })
+              }}
             />
           </div>
 
@@ -210,7 +257,10 @@ export default function InsertBlockToolbar({
               <button
                 key={a}
                 className={`px-4 py-2 text-sm ${align===a ? 'bg-muted' : 'hover:bg-muted'}`}
-                onClick={()=>setAlign(a)}
+                onClick={() => {
+                  setAlign(a)
+                  emitTextChange({ align: a })
+                }}
               >
                 {a === 'left' ? '≡' : a === 'center' ? '≣' : '≡'}
               </button>
@@ -221,13 +271,25 @@ export default function InsertBlockToolbar({
           <div className="inline-flex overflow-hidden rounded-2xl border border-border">
             <button
               className={`px-4 py-2 text-sm italic ${italic ? 'bg-muted' : 'hover:bg-muted'}`}
-              onClick={()=>setItalic(v=>!v)}
+              onClick={() => {
+                setItalic(prev => {
+                  const next = !prev
+                  emitTextChange({ italic: next })
+                  return next
+                })
+              }}
             >
               I
             </button>
             <button
               className={`px-4 py-2 text-sm ${underline ? 'bg-muted' : 'hover:bg-muted'}`}
-              onClick={()=>setUnderline(v=>!v)}
+              onClick={() => {
+                setUnderline(prev => {
+                  const next = !prev
+                  emitTextChange({ underline: next })
+                  return next
+                })
+              }}
             >
               Aa
             </button>
