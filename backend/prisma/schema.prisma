@@ -66,10 +66,9 @@ model User {
 model Profile {
   id              String     @id @default(cuid()) @map("_id")
   userId           String     @unique
-  profileMediaId  String? 
+  profileMediaId  String?
   description     String?
   location        String?
-  emailPublic     String?
   url             String?
   visibility      Visibility  @default(PUBLIC)
   createdAt       DateTime   @default(now())
