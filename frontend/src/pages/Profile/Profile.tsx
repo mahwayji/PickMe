@@ -1,5 +1,5 @@
 // frontend/src/pages/Profile.tsx
-import React, { useEffect } from 'react'
+import React, { useEffect} from 'react'
 import SideBar from '@/components/utils/SideBar'
 import { axiosInstance } from '@/lib/axios';
 import type { Section } from '@/types/section';
@@ -11,14 +11,19 @@ import type { UserProfile } from '@/types/userProfile';
 import NotFound from '../NotFound';
 import ProfileHeader from '@/components/Admin/User/components/User/Profile/ProfileHeader';
 import Loading from '../Loading';
+import { CreateSectionForm } from '@/components/Section/components/Form/CreateSectionForm';
+import { EditSectionForm } from '@/components/Section/components/Form/EditSectionForm';
+import { SectionView } from '@/components/Section/SectionView';
 
 const Profile: React.FC = () => {
-  // Fake data for section creation
 
   const [data, setData] = React.useState<UserProfile|null>(null);
-  const [_sectionData, setSectionData] = React.useState<Section[]>([]);
+  const [sectionData, setSectionData] = React.useState<Section[]>([]);
   const [ownerPageId, setOwnerPageId] = React.useState<string | null>(null);
   const [userId, setUserId] = React.useState<string | null>(null);
+  const [isCreateSectionFormOpen, setIsCreateSectionFormOpen] = React.useState<boolean>(false);
+  const [isEditSectionFormOpen, setIsEditSectionFormOpen] = React.useState<boolean>(false);
+  const [sectionIdToEdit, setSectionIdToEdit] = React.useState<string>('');
 
   const [isLoading, setIsLoading] = React.useState<boolean>(true);
   
@@ -59,6 +64,10 @@ const Profile: React.FC = () => {
     }
   }
   
+  const handleEditUser = async () => {
+    setOpenEditUserDialog(true)
+  }
+
   useEffect(() => {
     setIsLoading(true);
     fetchUserId();
@@ -67,11 +76,11 @@ const Profile: React.FC = () => {
     setIsLoading(false);
   }, []);
   
-  const handleEditUser = async () => {
-      setOpenEditUserDialog(true)
-    }
 
-  if(data === null) return(
+
+
+
+    if(data === null) return(
     <NotFound />
   )
 
@@ -79,9 +88,9 @@ const Profile: React.FC = () => {
     <Loading />
   )
   else
-
+  
   return (
-    <div className="flex flex-row text-foreground min-h-screen">
+    <div className="flex flex-row text-foreground min-h-screen" >
       {/* Sidebar */}
       <SideBar />
       <div className="flex flex-col items-start w-full overflow-y-auto">
@@ -92,14 +101,34 @@ const Profile: React.FC = () => {
         />
         <Separator className='py-2'/>
 
-        {/* <SectionView 
+        {isCreateSectionFormOpen && userId &&(
+        <CreateSectionForm 
+          open= {isCreateSectionFormOpen} 
+          setOpen= {setIsCreateSectionFormOpen}
+          data= {sectionData}
+          setData= {setSectionData}
+          userId = {userId}
+        />)}
+
+        {isEditSectionFormOpen && userId &&(
+        <EditSectionForm 
+          open= {isEditSectionFormOpen} 
+          setOpen= {setIsEditSectionFormOpen}
+          data= {sectionData}
+          setData= {setSectionData}
+          setLoading={setIsLoading}
+          userId= {userId}
+          sectionId={sectionIdToEdit}
+        />)}
+
+        <SectionView 
           sectionData={sectionData} 
           isLoading={isLoading} 
           ownerPageId={ownerPageId} 
           userId={userId} 
           setOpenCreateSectionForm={setIsCreateSectionFormOpen} 
           setOpenEditSectionForm={setIsEditSectionFormOpen} 
-          setSectionIdToEdit={setSectionIdToEdit}/> */}
+          setSectionIdToEdit={setSectionIdToEdit}/> 
 
       </div>
       <EditUserForm

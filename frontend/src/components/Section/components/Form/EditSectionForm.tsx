@@ -8,7 +8,7 @@ import React, { useEffect } from 'react'
 import { axiosInstance } from '@/lib/axios'
 import type { Section } from "@/types/section";
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -88,13 +88,35 @@ export const EditSectionForm: React.FC<Props> = ({ open, setOpen, data, setData,
         }
     }
 
+    const onDelete = async () => {
+        toast.success('Deleting section...')
+        setLoading(true);
+        try {
+            if (!userId) {
+                toast.error('Log in is required to delete create a section')
+                return
+            }
+            await axiosInstance.delete(`/section/delete/${sectionId}`)
+            toast.success('Section deleted successfully')
+            setLoading(false);
+            setOpen(false)
+        } catch (error) {
+            if (isAxiosError(error)) {
+                toast.error(error.response?.data?.message || 'Failed to update section')
+            } else {
+                toast.error('Failed to delete section')
+            }
+        }
+    }
+
 
     return ( 
         (sectionId) &&
         <Dialog open={open} onOpenChange={setOpen} >
             <DialogContent className="rounded-full [&>button]:hidden">
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 ">
+                    <form onSubmit={form.handleSubmit(onSubmit)}
+                        className="space-y-4 ">
                 <DialogHeader>
                     <div className='flex items-center w-full space-x-2 justify-between'>
                     <div className='flex justify-center items-center space-x-2'>
@@ -194,7 +216,9 @@ export const EditSectionForm: React.FC<Props> = ({ open, setOpen, data, setData,
                             </FormItem>
                         )} 
                     />          
-                        
+                <DialogFooter>
+                    <Button onClick={onDelete} className='border font-light rounded-3xl bg-red-600 text-white px-4 py-2 cursor-pointer'>DELETE</Button>
+                </DialogFooter>        
                     </form>
                 </Form>
             </DialogContent>

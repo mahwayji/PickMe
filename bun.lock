@@ -1,6 +1,5 @@
 {
   "lockfileVersion": 1,
-  "configVersion": 0,
   "workspaces": {
     "": {
       "name": "PickMe",
@@ -21,6 +20,7 @@
         "@prisma/client": "^6.16.2",
         "aws-sdk": "^2.1692.0",
         "client-s3": "aws-sdk/client-s3",
+        "backend": ".",
         "bcrypt": "^6.0.0",
         "bcryptjs": "^3.0.2",
         "class-transformer": "^0.5.1",
@@ -78,6 +78,7 @@
       "name": "frontend",
       "version": "0.0.0",
       "dependencies": {
+        "frontend": ".",
         "@heroicons/react": "^2.2.0",
         "@heroui/react": "^2.8.5",
         "@hookform/resolvers": "^5.2.2",
