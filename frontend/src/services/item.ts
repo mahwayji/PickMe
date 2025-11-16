@@ -17,11 +17,32 @@ export async function createItem(sectionId: string, payload: CreateItemPayload) 
 
 export type ItemDto = {
   id: string
-  sectionId: string
   title: string
   description?: string
   tags?: string[]
-  thumbnailMediaId?: File
+  thumbnailId?: string
+  itemBlocks?: {
+    id: string
+    type: 'text' | 'image' | 'video'
+    text?: string
+    style?: any
+    url?: string
+    alt?: string
+    caption?: string
+    aspectRatio?: number
+    orderIndex: number
+    provider?: string
+    controls?: boolean
+    muted?: boolean
+    startAt?: number
+    endAt?: number
+  }[]
+  createdAt: string
+  updatedAt: string
+
+  sectionTitle?: string
+  profileMediaId?: string
+  username?: string
 }
 
 export async function getItem(itemId: string) {
@@ -29,7 +50,7 @@ export async function getItem(itemId: string) {
   return data as ItemDto
 }
 
-export type UpdateItemPayload = Partial<Pick<ItemDto, 'title' | 'description' | 'tags' | 'thumbnailMediaId'>>
+export type UpdateItemPayload = Partial<Pick<ItemDto, 'title' | 'description' | 'tags' | 'thumbnailId'>>
 
 export async function updateItem(itemId: string, payload: UpdateItemPayload) {
   const { data } = await axiosInstance.patch(`/items/${encodeURIComponent(itemId)}`, payload)

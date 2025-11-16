@@ -33,7 +33,7 @@ export default function BasicInfoModal({ itemId, open, onClose, onSaved }: Props
         setDesc(it.description ?? '')
         setTags(it.tags ?? [])
       })
-      .catch((e:any) => toast.error(e?.response?.data?.message || e?.message || 'โหลดข้อมูล Item ไม่สำเร็จ'))
+      .catch((e:any) => toast.error(e?.response?.data?.message || e?.message || 'Fail to load item data'))
       .finally(() => setLoading(false))
   }, [open, itemId])
 
@@ -42,7 +42,7 @@ export default function BasicInfoModal({ itemId, open, onClose, onSaved }: Props
     const t = tagInput.trim()
     if (!t) return
     if (tags.includes(t)) { setTagInput(''); return }
-    if (tags.length >= 10) { toast.error('แท็กได้ไม่เกิน 10 รายการ'); return }
+    if (tags.length >= 10) { toast.error('Tag up to 10 tags'); return }
     setTags(prev => [...prev, t])
     setTagInput('')
   }
@@ -50,10 +50,10 @@ export default function BasicInfoModal({ itemId, open, onClose, onSaved }: Props
 
   // save
   const handleSave = async () => {
-    if (!title.trim()) { toast.error('กรอก Title'); return }
-    if (title.length > 60) { toast.error('Title เกิน 60 ตัวอักษร'); return }
-    if (desc.length > 500) { toast.error('Description เกิน 500 ตัวอักษร'); return }
-    if (tags.length > 10) { toast.error('แท็กเกิน 10 รายการ'); return }
+    if (!title.trim()) { toast.error('Title'); return }
+    if (title.length > 60) { toast.error('Title max to 60 characters'); return }
+    if (desc.length > 500) { toast.error('Description max to 500 characters'); return }
+    if (tags.length > 10) { toast.error('Tag max to 10 tags'); return }
 
     setSaving(true)
     try {
@@ -68,7 +68,7 @@ export default function BasicInfoModal({ itemId, open, onClose, onSaved }: Props
       onSaved?.(updated)
       onClose()
     } catch (e:any) {
-      toast.error(e?.response?.data?.message || e?.message || 'บันทึกไม่สำเร็จ')
+      toast.error(e?.response?.data?.message || e?.message || 'Fail to save')
     } finally {
       setSaving(false)
     }
@@ -113,7 +113,7 @@ export default function BasicInfoModal({ itemId, open, onClose, onSaved }: Props
         {/* Body */}
         <div className="px-5 py-4">
           {loading ? (
-            <div className="py-12 text-center text-sm text-muted-foreground">กำลังโหลด…</div>
+            <div className="py-12 text-center text-sm text-muted-foreground">Loading</div>
           ) : (
             <div className="space-y-4">
               {/* Title */}
