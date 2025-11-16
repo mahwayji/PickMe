@@ -7,6 +7,8 @@ import { ItemsModule } from './items/items.module';
 import { ItemBlocksModule } from './item-blocks/item-blocks.module';
 import { ProfileModule } from './profile/profile.module';
 import { SectionModule } from './section/section.module';
+import { FeedModule } from './feed/feed.module';
+import { MediaModule } from './media/media.module';
 
 @Module({
   imports: [
@@ -16,6 +18,8 @@ import { SectionModule } from './section/section.module';
     ItemBlocksModule,
     ProfileModule,
     SectionModule,
+    FeedModule,
+    MediaModule,
   ],
   controllers: [AppController],
   providers: [AppService],

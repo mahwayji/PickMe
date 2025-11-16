@@ -344,6 +344,10 @@ async update(id: string, body: any) {
 
 
   async remove(id: string) {
+    const item= await this.prisma.item.findUnique({where: {id}})
+    if(item?.thumbnailMediaId)
+        await this.mediaService.deleteImage(item.thumbnailMediaId);
+      
     await this.prisma.itemBlock.deleteMany({ where: { itemId: id } });
     await this.prisma.itemTag.deleteMany({ where: { itemId: id } });
     await this.prisma.viewEvent.deleteMany({ where: { itemId: id } });

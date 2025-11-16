@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { uploadFile } from 'src/utils/aws';
 import * as ffmpeg from 'fluent-ffmpeg';
@@ -40,6 +40,23 @@ export class MediaService {
         });
 
         return media;
+    }
+
+    async getUrlbyId(id: string){
+        const media = await this.prisma.media.findUnique({where: {id:id}})
+
+        if(!media)
+            throw new NotFoundException("The media with this id does not exist")
+
+        return media.url
+    }
+
+    async deleteImage(id: string){
+        const media = this.prisma.media.findUnique({where: {id:id}})
+        if(!media)
+            throw new NotFoundException("The media with this id does not exist")
+
+        await this.prisma.media.deleteMany({where: {id: id}})
     }
 
     private getVideoMetadata(file: Express.Multer.File): Promise<{ width: number; height: number; duration: number }> {

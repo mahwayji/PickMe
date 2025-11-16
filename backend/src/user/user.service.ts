@@ -23,10 +23,20 @@ export class UserService {
         const hashedPassword = await bcrypt.hash(user.password, BCRYPT_SALT_ROUNDS)
         user.password = hashedPassword
 
-        return await this.prisma.user.
+        const userData =  await this.prisma.user.
         create({
             data: user
         })
+
+        // initiate user profile
+        await this.prisma.profile.
+                create({
+                    data: {
+                        userId: userData.id
+                    }
+                })
+
+        return userData
     }
 
     async getUserByID(id: string) {
@@ -77,6 +87,6 @@ export class UserService {
             where: {id: id},
             data: body,
         })
-    
     }
+
 }
