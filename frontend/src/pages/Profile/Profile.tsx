@@ -9,6 +9,8 @@ import { toast } from 'sonner';
 import { SectionView } from '@/components/Section/SectionView';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
+import { CreateSectionForm } from '@/components/Section/components/Form/CreateSectionForm';
+import { EditSectionForm } from '@/components/Section/components/Form/EditSectionForm';
 
 const Profile: React.FC = () => {
   // Fake data for section creation
@@ -167,7 +169,7 @@ const Profile: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-row text-foreground min-h-screen">
+    <div className="flex flex-row text-foreground min-h-screen" >
       {/* Sidebar */}
       <SideBar />
 
@@ -209,6 +211,26 @@ const Profile: React.FC = () => {
         </div>
 
         <Separator className='py-2'/>
+
+        {isCreateSectionFormOpen && userId &&(
+        <CreateSectionForm 
+          open= {isCreateSectionFormOpen} 
+          setOpen= {setIsCreateSectionFormOpen}
+          data= {sectionData}
+          setData= {setSectionData}
+          userId = {userId}
+        />)}
+
+        {isEditSectionFormOpen && userId &&(
+        <EditSectionForm 
+          open= {isEditSectionFormOpen} 
+          setOpen= {setIsEditSectionFormOpen}
+          data= {sectionData}
+          setData= {setSectionData}
+          setLoading={setIsLoading}
+          userId= {userId}
+          sectionId={sectionIdToEdit}
+        />)}
 
         <SectionView 
           sectionData={sectionData} 

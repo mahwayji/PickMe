@@ -20,7 +20,7 @@ type Props = {
     setOpen: (open: boolean) => void
     data: Section[]
     setData: React.Dispatch<React.SetStateAction<Section[]>>
-    userId: string
+    userId: string 
 }
 
 const formSchema = z.object({
