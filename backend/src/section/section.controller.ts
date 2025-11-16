@@ -17,13 +17,14 @@ export class SectionController {
         return await this.sectionService.getSectionById(sectionId);
     }
 
-
     @Patch('update/:sectionId')
+    @UseGuards(AuthGuard('jwt'))
     async updateSection(@Param('sectionId') sectionId: string, @Body() data: Partial<sectionDto>) {
         return await this.sectionService.updateSection(sectionId, data);
     }
 
     @Delete('delete/:sectionId')
+    @UseGuards(AuthGuard('jwt'))
     async deleteSection(@Param('sectionId') sectionId: string) {
         return await this.sectionService.deleteSection(sectionId);
     }
