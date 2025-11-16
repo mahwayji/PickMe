@@ -25,13 +25,13 @@ export default function CreateItemModal() {
     const t = tagInput.trim()
     if (!t) return
     if (tags.includes(t)) return setTagInput('')
-    if (tags.length >= 10) return toast.error('แท็กได้ไม่เกิน 10 รายการ')
+    if (tags.length >= 10) return toast.error('Tag up to 10 tags')
     setTags([...tags, t]); setTagInput('')
   }
   const removeTag = (t: string) => setTags(tags.filter(x => x !== t))
 
   const onSave = async () => {
-    if (!title.trim()) { toast.error('กรอกชื่อไอเท็ม'); return }
+    if (!title.trim()) { toast.error('Items name'); return }
     setSaving(true)
     try {
       const payload = {
@@ -42,10 +42,10 @@ export default function CreateItemModal() {
       }
 
       await createItem(sectionId, payload)
-      toast.success('สร้าง Item สำเร็จ!')
+      toast.success('Create Item successfully')
       onClose()
     } catch (e: any) {
-      toast.error(e?.response?.data?.message || e?.message || 'บันทึกไม่สำเร็จ')
+      toast.error(e?.response?.data?.message || e?.message || 'Fail to Save')
     } finally {
       setSaving(false)
     }

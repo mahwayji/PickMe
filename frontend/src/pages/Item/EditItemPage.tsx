@@ -7,6 +7,7 @@ import { getItem } from '@/services/item'
 import InsertBlockToolbar from './components/InsertBlockToolbar'
 import type { TextOptions } from './components/InsertBlockToolbar'
 import type { ItemDto } from '@/services/item'
+import { ArrowUp, ArrowDown, Trash2 } from "lucide-react"
 import {
   listItemBlocks,
   createItemBlock,
@@ -48,6 +49,7 @@ export default function EditItemPage() {
 
         // load block BE
         const serverBlocks = await listItemBlocks(itemId)
+        console.log("🔥 RAW SERVER BLOCKS:", JSON.stringify(serverBlocks, null, 2))
         const mapped: Block[] = serverBlocks.map((b: BlockDto) => {
           if (b.type === 'text') {
             return {
@@ -90,7 +92,7 @@ export default function EditItemPage() {
         return created.id
       }
       if (type === 'image') {
-        // pin url placholder for now
+        // pin url placeholder for now
         const created = await createItemBlock(itemId, {
           type: 'image',
           url: `https://local.invalid/tmp/${crypto.randomUUID()}.png`,
@@ -107,7 +109,7 @@ export default function EditItemPage() {
       setBlocks(prev => [...prev, { id: created.id, type: 'video', caption: fileName }])
       return created.id
     } catch (e: any) {
-      toast.error(e?.response?.data?.message || e?.message || 'สร้างบล็อกไม่สำเร็จ')
+      toast.error(e?.response?.data?.message || e?.message || 'Fail to Create Block')
       throw e
     }
   }
@@ -115,11 +117,11 @@ export default function EditItemPage() {
   // autosave: text & style
   const debouncedUpdateText = useMemo(
     () =>
-      debounce(async (blockId: string, text: string, style?: any) => {
+      debounce(async (blockId: string, text: string) => {
         try {
-          await updateItemBlock(itemId, blockId, { type: 'text', text, style })
+          await updateItemBlock(itemId, blockId, { type: 'text', text })
         } catch {
-          toast.error('บันทึกข้อความไม่สำเร็จ')
+          toast.error('Fail to save text')
         }
       }, 400),
     [itemId],
@@ -131,7 +133,7 @@ export default function EditItemPage() {
         try {
           await updateItemBlock(itemId, blockId, { type: 'text', text, style })
         } catch {
-          toast.error('บันทึกสไตล์ไม่สำเร็จ')
+          toast.error('Fail to save style')
         }
       }, 400),
     [itemId],
@@ -147,8 +149,30 @@ export default function EditItemPage() {
         await reorderItemBlocks(itemId, next.map(b => b.id))
       }
     } catch (e:any) {
-      toast.error(e?.response?.data?.message || e?.message || 'ลบไม่สำเร็จ')
+      toast.error(e?.response?.data?.message || e?.message || 'Fail to delete')
     }
+  }
+
+  const moveBlock = async (id: string, direction: 'up' | 'down') => {
+      setBlocks(prev => {
+        const idx = prev.findIndex(b => b.id === id)
+        if (idx === -1) return prev
+
+        const targetIndex = direction === 'up' ? idx - 1 : idx + 1
+        if (targetIndex < 0 || targetIndex >= prev.length) return prev
+
+        const next = [...prev]
+        const tmp = next[idx]
+        next[idx] = next[targetIndex]
+        next[targetIndex] = tmp
+
+        reorderItemBlocks(itemId, next.map(b => b.id)).catch((e: any) => {
+          console.error('reorder failed', e)
+          toast.error(e?.response?.data?.message || e?.message || 'เรียงลำดับไม่สำเร็จ')
+        })
+
+        return next
+      })
   }
 
   return (
@@ -182,10 +206,24 @@ export default function EditItemPage() {
         }}
         onLiveChangeText={(opts) => {
           if (!selectedBlockId) return
-          updateBlock(selectedBlockId, { opts }) // local
-          const blk = blocks.find(b => b.id === selectedBlockId)
-          const textNow = blk && blk.type === 'text' ? blk.content : ''
-          debouncedUpdateStyle(selectedBlockId, textNow, opts) // BE
+
+          setBlocks(prev => {
+            let currentText = ''
+            let mergedStyle: TextOptions | undefined
+
+            const next = prev.map(b => {
+              if (b.id !== selectedBlockId || b.type !== 'text') return b
+              mergedStyle = { ...(b.opts ?? {}), ...(opts ?? {}) }
+              currentText = b.content
+              return { ...b, opts: mergedStyle }
+            })
+
+            if (mergedStyle) {
+              debouncedUpdateStyle(selectedBlockId, currentText, mergedStyle)
+            }
+
+            return next
+          })
         }}
         onCloseRequested={() => setSelectedBlockId(null)}
       />
@@ -247,14 +285,33 @@ export default function EditItemPage() {
                   >
                     <div className="mb-2 flex items-center justify-between">
                       <span className="text-xs uppercase text-muted-foreground">{b.type}</span>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            moveBlock(b.id, 'up')
+                          }}
+                          className="p-1 rounded-md hover:bg-muted"
+                        >
+                          <ArrowUp className="w-4 h-4 text-muted-foreground hover:text-foreground" />
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            moveBlock(b.id, 'down')
+                          }}
+                          className="p-1 rounded-md hover:bg-muted"
+                        >
+                          <ArrowDown className="w-4 h-4 text-muted-foreground hover:text-foreground" />
+                        </button>
+                      </div>
                       <button
                         onClick={(e) => { e.stopPropagation(); removeBlock(b.id) }}
-                        className="text-xs text-muted-foreground hover:text-foreground"
+                        className="p-1 rounded-md hover:bg-red-500/10"
                       >
-                        Remove
+                        <Trash2 className="w-4 h-4 text-red-500" />
                       </button>
                     </div>
-
                     {b.type === 'text' && (
                       <textarea
                         className="w-full min-h-[160px] rounded-lg border border-border bg-background p-3 outline-none placeholder:text-muted-foreground"
@@ -263,7 +320,7 @@ export default function EditItemPage() {
                         onChange={(e) => {
                           const val = e.target.value
                           updateBlock(b.id, { content: val })
-                          debouncedUpdateText(b.id, val, b.opts)
+                          debouncedUpdateText(b.id, val)
                         }}
                         style={{
                           fontFamily: b.opts?.font,

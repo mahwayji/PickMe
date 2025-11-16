@@ -1,14 +1,19 @@
+export type TextStyle = {
+  font?: string;
+  weight?: string | number;
+  size?: number;
+  color?: string;
+  align?: "left" | "center" | "right";
+  italic?: boolean;
+  underline?: boolean;
+};
+
 export type ItemBlock =
     | { //text return
         id: string;
         type: 'text';
         text: string;
-        style?: {
-            fontSize?: string;
-            fontWeight?: string;
-            color?: string;
-            lineHeight?: string,
-        };
+        style?: TextStyle;
         orderIndex: number;
         createdAt: string;
         updatedAt: string;
