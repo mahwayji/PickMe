@@ -9,13 +9,13 @@ import { Form, FormControl, FormField, FormItem, FormMessage } from '@/component
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Visibility, visibilityOption, type userProfile } from '@/types/userProfile';
+import { Visibility, visibilityOption, type UserProfile } from '@/types/userProfile';
 
 type Props = {
     open: boolean
     setOpen: (open:boolean) => void
-    data: userProfile
-    setData: (data:userProfile) => void
+    data: UserProfile
+    setData: (data:UserProfile) => void
 }
 
 const formScheme = z.object({

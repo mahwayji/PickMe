@@ -1,12 +1,12 @@
 import { Button } from '@/components/ui/button'
 import { getUrlById } from '@/services/ImageHandle'
-import type { userProfile } from '@/types/userProfile'
+import type { UserProfile } from '@/types/userProfile'
 import { User, ToolCaseIcon, Send } from 'lucide-react'
 import type React from 'react'
 import { useState, useEffect } from 'react'
 
 type Props = {
-    data: userProfile,
+    data: UserProfile,
     isOwner: boolean,
     handleEditUser: () => void
 }

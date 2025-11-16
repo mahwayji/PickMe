@@ -1,23 +1,22 @@
 // frontend/src/pages/Profile.tsx
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect } from 'react'
 import SideBar from '@/components/utils/SideBar'
 import { axiosInstance } from '@/lib/axios';
 import type { Section } from '@/types/section';
 import { useParams } from 'react-router-dom';
 import { toast } from 'sonner';
-import { SectionView } from '@/components/Section/SectionView';
 import { Separator } from '@/components/ui/separator';
 import { EditUserForm } from '@/components/Admin/User/components/User/Profile/EditUserForm';
-import type { userProfile } from '@/types/userProfile';
+import type { UserProfile } from '@/types/userProfile';
 import NotFound from '../NotFound';
 import ProfileHeader from '@/components/Admin/User/components/User/Profile/ProfileHeader';
+import Loading from '../Loading';
 
 const Profile: React.FC = () => {
   // Fake data for section creation
-  const fakeData = {title: 'Sample Section', description: 'This is a sample section description.', coverMediaId: ''};
 
-  const [data, setData] = React.useState<userProfile|null>(null);
-  const [sectionData, setSectionData] = React.useState<Section[]>([]);
+  const [data, setData] = React.useState<UserProfile|null>(null);
+  const [_sectionData, setSectionData] = React.useState<Section[]>([]);
   const [ownerPageId, setOwnerPageId] = React.useState<string | null>(null);
   const [userId, setUserId] = React.useState<string | null>(null);
 
@@ -26,11 +25,6 @@ const Profile: React.FC = () => {
   const [openEditUserDialog,setOpenEditUserDialog] = React.useState(false)
 
   const {username} = useParams(); // username of owner profile page
-
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  // Example section ID for deletion test
-  const sectionId = sectionData.length > 0 ? sectionData[0].id : ''; 
 
   const fetchUserId = async () => {
     try {
@@ -81,6 +75,9 @@ const Profile: React.FC = () => {
     <NotFound />
   )
 
+  else if (isLoading) return (
+    <Loading />
+  )
   else
 
   return (
