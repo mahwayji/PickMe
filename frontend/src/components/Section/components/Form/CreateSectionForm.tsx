@@ -90,7 +90,7 @@ export const CreateSectionForm: React.FC<Props> = ({ open, setOpen, data, setDat
                                 <Input
                                     id='coverMediaId'
                                     type='file'
-                                    className="peer border-dashed border-1 rounded-lg px-3 pt-5 pb-2 w-full h-full text-gray-700 border-gray-700 bg-transparent "
+                                    className="peer border-dashed border-1 rounded-lg px-3 pt-5 pb-2 w-full h-full text-gray-700 border-gray-700 bg-transparent"
                                     {...field}
                                     value={undefined} 
                                     onChange={(e) => {

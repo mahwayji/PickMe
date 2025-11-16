@@ -4,18 +4,21 @@ import { Plus } from 'lucide-react'
 import section404noimage from '@/images/section404noimg.gif'
 import type { Section } from '@/types/section'
 import { toast } from 'sonner'
+import { SECTION_PATH } from '@/constants/routes'
+import { Link } from 'react-router-dom'
 
 type Props = {
     sectionData: Section[]
     isLoading: boolean
     ownerPageId: string | null
+    ownerPageUsername: string | null
     userId: string | null
     setOpenCreateSectionForm: (open: boolean) => void
     setOpenEditSectionForm: (open: boolean) => void
     setSectionIdToEdit: (sectionId: string) => void
 }
 
-export const SectionView: React.FC<Props> = ({ sectionData, isLoading,ownerPageId,userId, setOpenCreateSectionForm,setOpenEditSectionForm,setSectionIdToEdit }: Props) => {
+export const SectionView: React.FC<Props> = ({ sectionData, isLoading,ownerPageId,ownerPageUsername,userId, setOpenCreateSectionForm,setOpenEditSectionForm,setSectionIdToEdit }: Props) => {
 
     const handleCreateSection = async () => {
         if (ownerPageId!=userId) {
@@ -31,8 +34,8 @@ export const SectionView: React.FC<Props> = ({ sectionData, isLoading,ownerPageI
         <div className="w-full flex justify-center">
         <div className="grid grid-cols-3 gap-0.5 w-[900px] justify-center ">
             {sectionData.map((section) => (
-                <Card key={section.id} className="w-[300px] h-[400px] relative rounded-none border-none hover:shadow-md transition-shadow cursor-pointer group">  
-                    {(ownerPageId === userId) &&
+                
+                <Card key={section.id} className="w-[300px] h-[400px] relative rounded-none border-none hover:shadow-md transition-shadow cursor-pointer group" >
                     <div className="top-2 left-63 w-[40px] bg-white rounded-full absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity aspect-square"
                     onClick={(e) => {
                         setOpenEditSectionForm(true);
@@ -40,11 +43,13 @@ export const SectionView: React.FC<Props> = ({ sectionData, isLoading,ownerPageI
                         e.stopPropagation();
                     }} >
                         <Wrench size={24} className="text-gray-600" />
-                    </div>}
-                    <img
-                        src={section.coverMediaId ? section.coverMediaId : section404noimage} 
-                        className="w-full h-full object-cover"
-                    />    
+                    </div>
+                    <Link to={SECTION_PATH.replace(':username', ownerPageUsername ? ownerPageUsername : '404').replace(':sectionId', section.id ? section.id : '404')}>
+                        <img
+                            src={section.coverMediaId ? section.coverMediaId : section404noimage} 
+                            className="w-full h-full object-cover"
+                        />    
+                    </Link>
                     <CardContent>
                         
                     </CardContent>

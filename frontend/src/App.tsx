@@ -5,7 +5,8 @@ import Loading from './pages/Loading'
 import { ADMIN_DASHBOARD_PATH, BASE_PATH, NOT_FOUND_PATH, PROFILE_INFO_PATH,
          SIGN_IN_PATH, SIGN_UP_PATH, 
          ITEM_CREATE_PATH, ITEM_EDIT_PATH,
-         ITEM_INFO_PATH, } from './constants/routes'
+         ITEM_INFO_PATH,
+         SECTION_PATH, } from './constants/routes'
 import { toast, Toaster } from 'sonner'
 import Home from './pages/Home/Home'
 import Profile from './pages/Profile/Profile'
@@ -14,6 +15,7 @@ import SignUp from './pages/Auth/SignUp'
 import AdminDashBoard from './pages/Admin/DashBoard'
 import CreateItemModal from './pages/Item/CreateItemModal'
 import EditItemPage from './pages/Item/EditItemPage'
+import Section from './pages/Section/Section'
 import NotFound from './pages/NotFound'
 import { axiosInstance } from './lib/axios'
 import ServerDown from './pages/ServerDown'
@@ -69,7 +71,8 @@ function App() {
                     <Route path = {BASE_PATH} element = {<Home/>} />
               
                     <Route path = {PROFILE_INFO_PATH} element = {<Profile />}/>
-              
+
+                    <Route path = {SECTION_PATH} element={<Section/>}/>
               
                     <Route path = {SIGN_IN_PATH} element={<SignIn />} />
                     <Route path = {SIGN_UP_PATH} element={<SignUp />} /> 

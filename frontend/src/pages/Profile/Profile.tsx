@@ -74,12 +74,8 @@ const Profile: React.FC = () => {
     if (username) fetchProfile();
     if (ownerPageId) fetchSection();
     setIsLoading(false);
-  }, []);
+  }, [isLoading,ownerPageId]);
   
-
-
-
-
     if(data === null) return(
     <NotFound />
   )
@@ -125,6 +121,7 @@ const Profile: React.FC = () => {
           sectionData={sectionData} 
           isLoading={isLoading} 
           ownerPageId={ownerPageId} 
+          ownerPageUsername={username? username:null}
           userId={userId} 
           setOpenCreateSectionForm={setIsCreateSectionFormOpen} 
           setOpenEditSectionForm={setIsEditSectionFormOpen} 
