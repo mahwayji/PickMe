@@ -21,7 +21,7 @@ function guessMediaType(url: string): MediaType {
 export class ItemsService {
   constructor(
     private readonly prisma: PrismaService,
-    //private readonly mediaService: MediaService,
+    private readonly mediaService: MediaService,
   ) {}
 
   private toApiItemShape(item: any) {

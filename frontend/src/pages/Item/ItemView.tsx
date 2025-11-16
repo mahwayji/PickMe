@@ -9,7 +9,6 @@ import type { ItemBlock } from '@/types/itemBlock'
 import type { Item } from '@/types/item'
 import ItemBlocks from './ItemBlocks'
 import { demoBlocks, demoItems } from './DemoData'
-import { User } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import SideBar from '@/components/utils/SideBar'

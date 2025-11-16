@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { uploadFile } from 'src/utils/aws';
+import { deleteFile, uploadFile } from 'src/utils/aws';
 import * as ffmpeg from 'fluent-ffmpeg';
 import * as ffmpegInstaller from '@ffmpeg-installer/ffmpeg';
 
@@ -10,6 +10,13 @@ export class MediaService {
     constructor(private readonly prisma:PrismaService) {}
 
     async uploadImage(id: string, file: Express.Multer.File) {
+        if (!file) {
+            throw new Error("File is missing. Ensure you're using @UseInterceptors(FileInterceptor('file')).");
+        }
+        if (!file.originalname) {
+            throw new Error("File has no originalname. Check Multer config.");
+        }
+        
         const ext = file.originalname.split('.').pop()?.toLowerCase();
         let mediaType: 'image' | 'video';
 
@@ -42,7 +49,7 @@ export class MediaService {
         return media;
     }
 
-    async getUrlbyId(id: string){
+    async getUrlById(id: string){
         const media = await this.prisma.media.findUnique({where: {id:id}})
 
         if(!media)
@@ -52,10 +59,12 @@ export class MediaService {
     }
 
     async deleteImage(id: string){
-        const media = this.prisma.media.findUnique({where: {id:id}})
+        const media = await this.prisma.media.findUnique({where: {id:id}})
         if(!media)
             throw new NotFoundException("The media with this id does not exist")
 
+        deleteFile(media.fileName)
+        
         await this.prisma.media.deleteMany({where: {id: id}})
     }
 

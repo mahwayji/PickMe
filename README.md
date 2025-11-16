@@ -13,6 +13,11 @@ create `.env` file inside backend folder with following code
 DATABASE_URL = "mongodb://<name>:<password>@localhost:27017/PickMe?authSource=admin&replicaSet=rs0"
 GOOGLE_CLIENT_ID="..."
 GOOGLE_CLIENT_SECRET="..."
+
+AWS_S3_BUCKET_NAME="..."
+AWS_ACCESS_KEY_ID="..."
+AWS_SECRET_KEY="..."
+AWS_REGION="..."
 ```
 ### env fontend 
 create `.env` file inside frontend folder with following code

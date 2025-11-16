@@ -8,6 +8,7 @@ export type Item = {
     tags: string[],
     thumbnail: string,
     blocks: ItemBlock[],
+    orderIndex: number,
     createdAt: Date,
     updatedAt: Date,
 }

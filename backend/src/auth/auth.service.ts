@@ -5,7 +5,6 @@ import * as bcrypt from "bcrypt";
 import { SignInDto } from "./dto/signin.dto";
 import { SignUpDto } from "./dto/signup.dto";
 import { randomUUID } from 'crypto';
-import { ideahub } from "googleapis/build/src/apis/ideahub";
 
 @Injectable()
 export class AuthService {
@@ -57,7 +56,6 @@ export class AuthService {
             email: userdata.email,
             firstname: userdata.firstName,
             lastname: userdata.lastName,
-            profilePicture: userdata.profilePicture,
             isAdmin: userdata.isAdmin
         }
     }
