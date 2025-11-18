@@ -30,12 +30,14 @@ export const SectionView: React.FC<Props> = ({ sectionData, isLoading,ownerPageI
     }
 
     return (
+        
         (isLoading) ? <div> Loading... </div> :
         <div className="w-full flex justify-center">
         <div className="grid grid-cols-3 gap-0.5 w-[900px] justify-center ">
             {sectionData.map((section) => (
                 
                 <Card key={section.id} className="w-[300px] h-[400px] relative rounded-none border-none hover:shadow-md transition-shadow cursor-pointer group" >
+                    {ownerPageId === userId && (
                     <div className="top-2 left-63 w-[40px] bg-white rounded-full absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity aspect-square"
                     onClick={(e) => {
                         setOpenEditSectionForm(true);
@@ -43,12 +45,12 @@ export const SectionView: React.FC<Props> = ({ sectionData, isLoading,ownerPageI
                         e.stopPropagation();
                     }} >
                         <Wrench size={24} className="text-gray-600" />
-                    </div>
+                    </div>)}
                     <Link to={SECTION_PATH.replace(':username', ownerPageUsername ? ownerPageUsername : '404').replace(':sectionId', section.id ? section.id : '404')}>
                         <img
                             src={section.coverMediaId ? section.coverMediaId : section404noimage} 
                             className="w-full h-full object-cover"
-                        />    
+                        />     
                     </Link>
                     <CardContent>
                         
