@@ -16,14 +16,15 @@ type Props = {
     onConfirm: () => void 
 }
 
-export const ConfirmDeleteDialogue: React.FC<Props> = ({ open, setOpen, onConfirm}: Props) => {
+export const ConfirmDeleteDialogueItem: React.FC<Props> = ({ open, setOpen, onConfirm}: Props) => {
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogContent className="max-w-[300px] w-full">
+      <AlertDialogContent 
+        className="max-w-[300px] w-full ">
         <AlertDialogHeader>
-          <AlertDialogTitle className="font-normal text-lg text-black-1000 text-center">Delete Section</AlertDialogTitle>
+          <AlertDialogTitle className="font-normal text-lg text-black-1000 text-center">Delete Item</AlertDialogTitle>
           <AlertDialogDescription className="font-light text-sm text-black-1000 text-center">
-            This action will delete the selected section and all its contents from your profile. <br />{' '}<span className="text-red-600 font-md">You cannot undo this action.</span>{' '}
+            This action will delete the selected item and all its contents from your section. <br />{' '}<span className="text-red-600 font-md">You cannot undo this action.</span>{' '}
           </AlertDialogDescription>
         </AlertDialogHeader>
 
