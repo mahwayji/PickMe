@@ -3,20 +3,23 @@ import SideBar from "@/components/utils/SideBar";
 import { ThemeToggle } from "@/components/utils/ThemeTogglebutton";
 import ProfileSummaryCard from "@/components/Admin/User/components/Home/ProfileSummaryCard";
 import TagPanel from "@/components/Admin/User/components/Tags/TagPanel";
+//import { Button } from "@/components/ui/button";
+import { axiosInstance } from "@/lib/axios";
+//import axios from "axios";
 
 // แท็กทั้งหมดที่อยากโชว์ใน TagPanel
-const popularTags = [
+/*const popularTags = [
   "SteelBallRun",
   "ArtificialIntelligence (AI)",
   "Cybersecurity",
   "Blockchain",
-];
+];*/
 
-const newTags = [
+/*const newTags = [
   "SoftwareEngineering",
   "WebDevelopment",
   "DevOps",
-];
+];*/
 
 
 // mock feed data (เดี๋ยวอนาคตค่อยเปลี่ยนเป็นดึงจาก backend)
@@ -35,7 +38,7 @@ const mockFeed: FeedItem[] = [
     description:
       "A visual journey inspired by the Steel Ball Run — a race across America...",
     cover: "",
-    tags: ["SteelBallRun", "WebDevelopment"],
+    tags: ["SteelBallRun", "devops"],
   },
   {
     id: 2,
@@ -57,10 +60,57 @@ const mockFeed: FeedItem[] = [
 
 const Home: React.FC = () => {
   const [activeTag, setActiveTag] = React.useState<string | null>(null);
+  const [tags, setTags] = React.useState<string[]>([]);
 
   const handleSelectTag = (t: string | null) => {
     setActiveTag(t);
   };
+
+  /*const handleCreateTag = () => {
+    console.log("Create Tag clicked");
+    const newTag = { name: "ML" };
+            const createTag = async () => {
+          try {
+            const response = await axiosInstance.post('/tag/create', newTag);
+            console.log('Tag created successfully:', response.data);
+          } catch (error) {
+            if (axios.isAxiosError(error)) { // Type guard to ensure 'error' is an AxiosError
+              console.error('Error creating tag:', error.message);
+              if (error.response) {
+                // The request was made and the server responded with a status code
+                // that falls out of the range of 2xx
+                console.error('Server responded with:', error.response.data);
+                console.error('Status code:', error.response.status);
+              } else if (error.request) {
+                // The request was made but no response was received
+                console.error('No response received:', error.request);
+              } else {
+                // Something happened in setting up the request that triggered an Error
+                console.error('Axios setup error:', error.message);
+              }
+            } else {
+              // Non-Axios error
+              console.error('An unexpected error occurred:', error);
+            }
+          }
+        };
+        
+
+    createTag();
+  };*/
+
+  const fetchTags = async () => {
+    try {
+      const response = await axiosInstance.get('/tag');
+      console.log('Fetched tags:', response.data);
+      setTags(response.data.map((tag: { name: string }) => tag.name));
+    } catch (error) {
+      console.error('Error fetching tags:', error);
+    }
+  };
+  React.useEffect(() => {
+    fetchTags();
+  }, []);
 
   // ถ้าเลือก tag -> filter feed ตาม tag
   const visibleFeed = React.useMemo(() => {
@@ -142,11 +192,14 @@ const Home: React.FC = () => {
               <div className="sticky top-16">
                 <TagPanel
                   title="Tags"
-                  popularTags={popularTags}
-                  newTags={newTags}
+                  popularTags={tags}
+                  newTags={tags}
                   activeTag={activeTag}
                   onSelectTag={handleSelectTag}
                 />
+                {/* <Button className="mt-4 w-full" onClick={handleCreateTag}>
+                  Create Tag
+                </Button> */}
               </div>
             </div>
           </div>
