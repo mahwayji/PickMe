@@ -186,19 +186,27 @@ export class ItemBlocksService {
         }
 
         const c = (block.content ?? {}) as Record<string, any>;
-        if(block.type === 'text') {
-            const nextContent = {
-                text: body?.text ?? c.text,
-                style: body?.style ?? c.style,
-            };
-            return this.prisma.itemBlock.update ({
-                where: { id: blockId },
-                data: {
-                    content: nextContent,
-                    updatedAt: new Date(),
-                },
-                include: {media: true},
-            });
+        if (block.type === 'text') {
+        const prevStyle = (c.style ?? {}) as Record<string, any>;
+        const incomingStyle = (body?.style ?? undefined) as Record<string, any> | undefined;
+
+        const mergedStyle = incomingStyle
+            ? { ...prevStyle, ...incomingStyle }
+            : prevStyle;
+
+        const nextContent = {
+            text: body?.text ?? c.text,
+            style: mergedStyle,
+        };
+
+        return this.prisma.itemBlock.update({
+            where: { id: blockId },
+            data: {
+            content: nextContent,
+            updatedAt: new Date(),
+            },
+            include: { media: true },
+        });
         }
         if(block.type === 'image') {
             let mediaId = block.mediaId ?? undefined;

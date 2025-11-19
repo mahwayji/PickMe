@@ -1,8 +1,18 @@
 import {z} from "zod"
 
 const ColorHexZ = z.string().regex(/^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/, "Invalid hex color");
-const FontFamilyZ = z.enum(["system", "serif", "sans", "mono"]);
-const FontWeightZ = z.enum(["light", "regular", "medium", "bold"]);
+const FontFamilyZ = z.enum([
+  "Arial",
+  "Verdana",
+  "Tahoma",
+  "Trebuchet MS",
+  "Times New Roman",
+  "Georgia",
+  "Garamond",
+  "Courier New",
+  "Brush Script MT",
+]);
+const FontWeightZ = z.enum(["light", "regular", "bold"]);
 const FontSizeZ = z.number().min(8).max(80);
 
 
@@ -15,7 +25,6 @@ const TextStyleZ = z.object({
     align: z.enum(["left", "center", "right"]).optional(),
     italic: z.boolean().optional(),
     underline: z.boolean().optional(),
-    list: z.enum(["none", "bulleted"]).optional(),
 })
 
 export const TextBlockZ = z.object({

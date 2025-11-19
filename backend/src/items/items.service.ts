@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { MediaType } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { MediaService } from 'src/media/media.service';
 
 //Helper function
 function toIso(d: Date | string | number | null | undefined): string {
@@ -18,14 +19,17 @@ function guessMediaType(url: string): MediaType {
 
 @Injectable()
 export class ItemsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly mediaService: MediaService,
+  ) {}
 
   private toApiItemShape(item: any) {
     const tags: string[] =
       item.tags?.map((it: any) => it.tag?.name).filter(Boolean) ?? [];
 
     const blocksRaw: any[] = item.blocks ?? [];
-    const blocks = blocksRaw
+    const itemBlocks = blocksRaw
       .slice()
       .sort((a, b) => (a.orderIndex ?? 1e9) - (b.orderIndex ?? 1e9))
       .map((b) => {
@@ -33,26 +37,31 @@ export class ItemsService {
         if (b.type === 'text') {
           if (typeof c.text !== 'string') return null;
           return {
+            id: b.id,
             type: 'text',
             text: c.text,
             style: c.style,
+            orderIndex: b.orderIndex ?? 0,
           };
         }
         if (b.type === 'image') {
           const url = b.media?.url ?? c.url;
           if (typeof url !== 'string') return null;
           return {
+            id: b.id,
             type: 'image',
             url,
             alt: c.alt,
             caption: c.caption,
             aspectRatio: c.aspectRatio,
+            orderIndex: b.orderIndex ?? 0,
           };
         }
         if (b.type === 'video') {
           const url = b.media?.url ?? c.url;
           if (typeof url !== 'string') return null;
           return {
+            id: b.id,
             type: 'video',
             url,
             provider: c.provider ?? 'upload',
@@ -62,11 +71,16 @@ export class ItemsService {
             startAt: c.startAt,
             endAt: c.endAt,
             aspectRatio: c.aspectRatio,
+            orderIndex: b.orderIndex ?? 0,
           };
         }
 
         return null;
       }).filter(Boolean);
+
+    const sectionTitle: string | undefined = item.section?.title ?? undefined;
+    const profileMediaId: string | undefined = item.section?.profile?.profileMediaId ?? undefined;
+    const username: string | undefined = item.section?.profile?.user?.username ?? undefined;
 
     return {
       id: item.id,
@@ -74,10 +88,13 @@ export class ItemsService {
       title: item.title,
       description: item.description ?? undefined,
       tags,
-      thumbnail: item.thumbnailMedia?.url ?? undefined,
-      blocks: blocks.length ? blocks : undefined,
+      thumbnailId: item.thumbnailMediaId ?? undefined,
+      itemBlocks: itemBlocks.length ? itemBlocks : undefined,
       createdAt: toIso(item.createdAt),
       updatedAt: toIso(item.updatedAt),
+      sectionTitle,
+      profileMediaId,
+      username,
     };
   }
 
@@ -117,6 +134,7 @@ export class ItemsService {
         thumbnailMedia: true,
         blocks: { include: { media: true } },
         tags: { include: { tag: true } },
+        section: { include: { user: { include: { profile: true, }, }, }, },
       },
     });
     return items.map((it) => this.toApiItemShape(it));
@@ -129,6 +147,7 @@ export class ItemsService {
         thumbnailMedia: true,
         blocks: { include: { media: true }, orderBy: { orderIndex: 'asc' } },
         tags: { include: { tag: true } },
+        section: { include: { user: { include: { profile: true, }, }, }, },
       },
     });
     if (!item) throw new NotFoundException('Item not found');
@@ -222,6 +241,7 @@ export class ItemsService {
         thumbnailMedia: true,
         blocks: { include: { media: true } },
         tags: { include: { tag: true } },
+        section: { include: { user: { include: { profile: true, }, }, }, },
       },
     });
     return this.toApiItemShape(full);
@@ -332,6 +352,7 @@ async update(id: string, body: any) {
       thumbnailMedia: true,
       blocks: { include: { media: true }, orderBy: { orderIndex: 'asc' } },
       tags: { include: { tag: true } },
+      section: { include: { user: { include: { profile: true, }, }, }, },
     },
   });
   if (!full) throw new NotFoundException('Item not found');
@@ -340,6 +361,10 @@ async update(id: string, body: any) {
 
 
   async remove(id: string) {
+    const item= await this.prisma.item.findUnique({where: {id}})
+    if(item?.thumbnailMediaId)
+        await this.mediaService.deleteImage(item.thumbnailMediaId);
+      
     await this.prisma.itemBlock.deleteMany({ where: { itemId: id } });
     await this.prisma.itemTag.deleteMany({ where: { itemId: id } });
     await this.prisma.viewEvent.deleteMany({ where: { itemId: id } });
