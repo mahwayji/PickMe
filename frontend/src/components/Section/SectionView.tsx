@@ -4,6 +4,7 @@ import { Plus } from 'lucide-react'
 import section404noimage from '@/images/section404noimg.gif'
 import type { Section } from '@/types/section'
 import { toast } from 'sonner'
+import { MediaImage } from '../utils/MediaToImage'
 
 type Props = {
     sectionData: Section[]
@@ -26,6 +27,7 @@ export const SectionView: React.FC<Props> = ({ sectionData, isLoading,ownerPageI
         setOpenCreateSectionForm(true);
     }
 
+    console.log(sectionData)
     return (
         (isLoading) ? <div> Loading... </div> :
         <div className="w-full flex justify-center">
@@ -41,10 +43,17 @@ export const SectionView: React.FC<Props> = ({ sectionData, isLoading,ownerPageI
                     }} >
                         <Wrench size={24} className="text-gray-600" />
                     </div>}
-                    <img
-                        src={section.coverMediaId ? section.coverMediaId : section404noimage} 
+
+                    {section.coverMediaId ? 
+                    (<MediaImage mediaId= {section.coverMediaId} 
+                        className="w-full h-full object-cover"/>)
+                    :
+                    (<img
+                        src= {section404noimage} 
                         className="w-full h-full object-cover"
-                    />    
+                    />   )
+
+                    }
                     <CardContent>
                         
                     </CardContent>

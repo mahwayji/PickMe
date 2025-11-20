@@ -101,7 +101,7 @@ export class ItemBlocksService {
             where: { id: itemId },
             select: { id: true },
         });
-        if (!item) throw new NotFoundException('Item not found');
+    if (!item) throw new NotFoundException('Item not found');
 
         const {type} = body ?? {};
         if(!type || !['text', 'image', 'video'].includes(type)) {
