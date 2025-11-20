@@ -1,9 +1,8 @@
 import { Button } from '@/components/ui/button'
-import { getUrlById } from '@/services/ImageHandle'
+import { MediaImage } from '@/components/utils/MediaToImage'
 import type { UserProfile } from '@/types/userProfile'
-import { User, ToolCaseIcon, Send } from 'lucide-react'
+import { User, Send, Wrench } from 'lucide-react'
 import type React from 'react'
-import { useState, useEffect } from 'react'
 
 type Props = {
     data: UserProfile,
@@ -12,14 +11,6 @@ type Props = {
 }
 
 const ProfileHeader: React.FC<Props> = ({data, isOwner, handleEditUser}: Props) => {
-    const [profileUrl, setProfileUrl] = useState<string>('')
-
-    useEffect(() => {
-    if (data.profileMediaId) {
-        getUrlById(data.profileMediaId).then(setProfileUrl)
-    }
-    }, [data.profileMediaId])
-    
     return (
     <div>
         {/* Profile Section */}
@@ -27,8 +18,8 @@ const ProfileHeader: React.FC<Props> = ({data, isOwner, handleEditUser}: Props) 
         {/* Avatar - Centered */}
         <div className="flex w-full sm:w-auto justify-center sm:justify-start">
             {data.profileMediaId ? 
-                (<img
-                src = {profileUrl}
+                (<MediaImage
+                mediaId = {data.profileMediaId}
                 className="w-28 h-28 rounded-full flex items-center justify-center shadow-md"
                 />) :
                 (
@@ -59,7 +50,7 @@ const ProfileHeader: React.FC<Props> = ({data, isOwner, handleEditUser}: Props) 
                 variant="outline" 
                 onClick = {handleEditUser}
                 >
-                <ToolCaseIcon size={16} />
+                <Wrench size={16} />
                 Edit Profile
                 </Button>) : 
                 (<></>)

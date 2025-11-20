@@ -43,8 +43,8 @@ const Profile: React.FC = () => {
 
   const fetchSection = async () => {
     try{
-          const res = await axiosInstance.get(`/section/user/${ownerPageId}` )
-          console.log(res.data);
+          const res = await axiosInstance.get(`/section/username/${username}` )
+          console.log('section ', res.data);
           setSectionData(res.data);
         }
         catch (error) {
@@ -72,9 +72,9 @@ const Profile: React.FC = () => {
     setIsLoading(true);
     fetchUserId();
     if (username) fetchProfile();
-    if (ownerPageId) fetchSection();
+    if (username) fetchSection();
     setIsLoading(false);
-  }, [isLoading,ownerPageId]);
+  }, []);
   
     if(data === null) return(
     <NotFound />
@@ -110,7 +110,6 @@ const Profile: React.FC = () => {
         <EditSectionForm 
           open= {isEditSectionFormOpen} 
           setOpen= {setIsEditSectionFormOpen}
-          data= {sectionData}
           setData= {setSectionData}
           setLoading={setIsLoading}
           userId= {userId}

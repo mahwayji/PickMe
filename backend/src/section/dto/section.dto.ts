@@ -1,4 +1,5 @@
-import { ApiProperty} from "@nestjs/swagger";
+import { ApiProperty, ApiPropertyOptional} from "@nestjs/swagger";
+import { IsOptional } from "class-validator";
 
 export class sectionDto {
   @ApiProperty({
@@ -17,11 +18,12 @@ export class sectionDto {
     description: 'description of section',
     example: 't1 win kt 3-0',
   })
-  description: string;
+  description?: string;
 
-  @ApiProperty({
-    description: 'Id of cover media',
-    example: '7sdaw456asdasd4asdasd',
+  @ApiPropertyOptional({
+      description: "Profile image (optional)",
+      example: "media_123456",
   })
-  coverMediaId: string;
+  @IsOptional()
+  coverImage?: any;
 }   
