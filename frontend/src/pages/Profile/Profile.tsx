@@ -110,7 +110,6 @@ const Profile: React.FC = () => {
         <EditSectionForm 
           open= {isEditSectionFormOpen} 
           setOpen= {setIsEditSectionFormOpen}
-          data= {sectionData}
           setData= {setSectionData}
           setLoading={setIsLoading}
           userId= {userId}

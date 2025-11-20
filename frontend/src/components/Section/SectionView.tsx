@@ -50,7 +50,7 @@ export const SectionView: React.FC<Props> = ({ sectionData, isLoading,ownerPageI
                     </div>)}
 
                     <Link to={SECTION_PATH.replace(':username', ownerPageUsername ? ownerPageUsername : '404').replace(':sectionId', section.id ? section.id : '404')}>
-                         {section.coverMediaId ? 
+                        {section.coverMediaId ? 
                             (<MediaImage mediaId= {section.coverMediaId} 
                                 className="w-full h-full object-cover"/>)
                             :

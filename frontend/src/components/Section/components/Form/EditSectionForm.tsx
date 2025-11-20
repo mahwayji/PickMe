@@ -20,7 +20,6 @@ import {ConfirmDeleteDialogue} from '@/components/Section/components/ConfirmDele
 type Props = {
     open: boolean
     setOpen: (open: boolean) => void
-    data: Section[]
     setData: React.Dispatch<React.SetStateAction<Section[]>>
     setLoading: React.Dispatch<React.SetStateAction<boolean>>
     userId: string
@@ -34,9 +33,9 @@ const formSchema = z.object({
 
 
 
-export const EditSectionForm: React.FC<Props> = ({ open, setOpen, data, setData,setLoading, userId, sectionId }: Props) => {
+export const EditSectionForm: React.FC<Props> = ({ open, setOpen, setData,setLoading, userId, sectionId }: Props) => {
 
-    const [isConfirmDeleteOpen,setIsconfirmDeleteOpen] = React.useState<boolean>(false);
+    const [isConfirmDeleteOpen,setIsConfirmDeleteOpen] = React.useState<boolean>(false);
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -134,7 +133,7 @@ export const EditSectionForm: React.FC<Props> = ({ open, setOpen, data, setData,
     {/* Confirm Delete Dialog */}
     <ConfirmDeleteDialogue
       open={isConfirmDeleteOpen}
-      setOpen={setIsconfirmDeleteOpen}
+      setOpen={setIsConfirmDeleteOpen}
       onConfirm={onDelete}
     />
 
@@ -256,7 +255,7 @@ export const EditSectionForm: React.FC<Props> = ({ open, setOpen, data, setData,
               <DialogFooter>
                 <Button
                   type="button"
-                  onClick={() => setIsconfirmDeleteOpen(true)}
+                  onClick={() => setIsConfirmDeleteOpen(true)}
                   className="border font-light rounded-3xl bg-red-600 text-white px-4 py-2 cursor-pointer"
                 >
                   DELETE
