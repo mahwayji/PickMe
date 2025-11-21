@@ -3,6 +3,9 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { deleteFile, uploadFile } from 'src/utils/aws';
 import * as ffmpeg from 'fluent-ffmpeg';
 import * as ffmpegInstaller from '@ffmpeg-installer/ffmpeg';
+import * as fs from 'fs';
+import * as path from 'path';
+import { tmpdir } from 'os';
 
 (ffmpeg as any).setFfmpegPath((ffmpegInstaller as any).path);
 @Injectable()
@@ -16,7 +19,7 @@ export class MediaService {
         if (!file.originalname) {
             throw new Error("File has no originalname. Check Multer config.");
         }
-        
+
         const ext = file.originalname.split('.').pop()?.toLowerCase();
         let mediaType: 'image' | 'video';
 
@@ -31,7 +34,18 @@ export class MediaService {
         const uploaded = await uploadFile(file);
         if (!uploaded) throw new Error("Can't upload file.");
 
-        const videoMetadata = await this.getVideoMetadata(file);
+        let videoMetadata: { width: number; height: number; duration: number } | null = null;
+        if (mediaType === 'video') {
+            videoMetadata = await this.getVideoMetadata(file);
+        }
+
+        const existing = await this.prisma.media.findUnique({
+        where: { url: uploaded.url },
+        });
+
+        if (existing) {
+            return existing;
+        }
 
         const media = await this.prisma.media.create({
             data: {
@@ -39,10 +53,10 @@ export class MediaService {
             url: uploaded.url,
             ownerId: id,
             type: mediaType,
-            ...(mediaType === 'video' && {
-                    width: videoMetadata?.width,
-                    height: videoMetadata?.height,
-                })
+            ...(mediaType === 'video' && videoMetadata && {
+                width: videoMetadata.width,
+                height: videoMetadata.height,
+            }),
             },
         });
 
@@ -68,24 +82,50 @@ export class MediaService {
         await this.prisma.media.deleteMany({where: {id: id}})
     }
 
-    private getVideoMetadata(file: Express.Multer.File): Promise<{ width: number; height: number; duration: number }> {
+    private getVideoMetadata( file: Express.Multer.File): Promise<{ width: number; height: number; duration: number }> {
         return new Promise((resolve, reject) => {
-        // ffmpeg cannot read buffers directly, so write a temp file
-        const tmpPath = `/tmp/${Date.now()}-${file.originalname}`;
-        import('fs').then(fs => {
-            fs.writeFileSync(tmpPath, file.buffer);
-            ffmpeg.ffprobe(tmpPath, (err, metadata) => {
-            fs.unlinkSync(tmpPath); // clean up temp file
-            if (err) return reject(err);
-            const stream = metadata.streams.find(s => s.width && s.height);
-            resolve({
-                width: stream?.width ?? 0,
-                height: stream?.height ?? 0,
-                duration: metadata.format.duration ?? 0,
-            });
-            });
-        });
+            const baseTmp = tmpdir();
+            const tempDir = path.join(baseTmp, 'pickme-video-metadata');
+
+            if (!fs.existsSync(tempDir)) {
+                fs.mkdirSync(tempDir, { recursive: true });
+            }
+
+            const safeName = file.originalname.replace(/[^\w.-]/g, '_');
+            const tmpPath = path.join(tempDir, `${Date.now()}-${safeName}`);
+
+            try {
+                fs.writeFileSync(tmpPath, file.buffer);
+
+                (ffmpeg as any).ffprobe(tmpPath, (err: any, metadata: any) => {
+                    try {
+                        fs.unlinkSync(tmpPath);
+                    } catch {
+                    }
+
+                    if (err) {
+                        console.error('[getVideoMetadata] ffprobe error', err);
+                        return resolve({ width: 0, height: 0, duration: 0 });
+                    }
+
+                    const stream = (metadata?.streams || []).find(
+                        (s: any) => s.width && s.height
+                    );
+
+                    resolve({
+                        width: stream?.width ?? 0,
+                        height: stream?.height ?? 0,
+                        duration: metadata?.format?.duration ?? 0,
+                    });
+                });
+            } catch (e) {
+            try {
+                fs.unlinkSync(tmpPath);
+            } catch {
+            }
+            console.error('[getVideoMetadata] failed before ffprobe', e);
+            return resolve({ width: 0, height: 0, duration: 0 });
+            }
         });
     }
-
 }

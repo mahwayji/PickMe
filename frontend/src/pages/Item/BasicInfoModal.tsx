@@ -20,6 +20,10 @@ export default function BasicInfoModal({ itemId, open, onClose, onSaved }: Props
   const [tags, setTags] = useState<string[]>([])
   const [tagInput, setTagInput] = useState('')
 
+  // thumbnail + preview URL
+  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null)
+  const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null)
+
   // counters
   const titleCount = useMemo(() => `${title.length}/60`, [title])
   const descCount = useMemo(() => `${desc.length}/500`, [desc])
@@ -32,10 +36,27 @@ export default function BasicInfoModal({ itemId, open, onClose, onSaved }: Props
         setTitle(it.title ?? '')
         setDesc(it.description ?? '')
         setTags(it.tags ?? [])
+
+        setThumbnailFile(null)
+        setThumbnailPreview(it.thumbnailUrl ?? null)
       })
-      .catch((e:any) => toast.error(e?.response?.data?.message || e?.message || 'Fail to load item data'))
+      .catch((e: any) =>
+        toast.error(e?.response?.data?.message || e?.message || 'Fail to load item data'),
+      )
       .finally(() => setLoading(false))
   }, [open, itemId])
+
+  useEffect(() => {
+    if (!open) {
+      setThumbnailFile(null)
+      setThumbnailPreview((prev) => {
+        if (prev && prev.startsWith('blob:')) {
+          URL.revokeObjectURL(prev)
+        }
+        return null
+      })
+    }
+  }, [open])
 
   // tag helpers
   const addTag = () => {
@@ -47,6 +68,19 @@ export default function BasicInfoModal({ itemId, open, onClose, onSaved }: Props
     setTagInput('')
   }
   const removeTag = (t: string) => setTags(prev => prev.filter(x => x !== t))
+
+  const handleThumbnailChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setThumbnailPreview((prev) => {
+      if (prev && prev.startsWith('blob:')) {
+        URL.revokeObjectURL(prev)
+      }
+      return URL.createObjectURL(file)
+    })
+    setThumbnailFile(file)
+  }
 
   // save
   const handleSave = async () => {
@@ -61,10 +95,15 @@ export default function BasicInfoModal({ itemId, open, onClose, onSaved }: Props
         title: title.trim(),
         description: desc.trim() || undefined,
         tags: tags.length ? tags : undefined,
-        // thumbnailMediaId: "To be ddcide"
       }
-      const updated = await updateItem(itemId, payload)
-      toast.success('บันทึกสำเร็จ')
+
+      const updated = await updateItem(
+        itemId,
+        payload,
+        thumbnailFile ?? undefined,
+      )
+
+      toast.success('Saved')
       onSaved?.(updated)
       onClose()
     } catch (e:any) {
@@ -116,6 +155,37 @@ export default function BasicInfoModal({ itemId, open, onClose, onSaved }: Props
             <div className="py-12 text-center text-sm text-muted-foreground">Loading</div>
           ) : (
             <div className="space-y-4">
+              <div className="rounded-xl border border-dashed border-border p-4">
+                <input
+                  id="basic-info-thumbnail-input"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleThumbnailChange}
+                />
+                <label
+                  htmlFor="basic-info-thumbnail-input"
+                  className="flex flex-col items-center justify-center gap-2 cursor-pointer"
+                >
+                  {thumbnailPreview ? (
+                    <img
+                      src={thumbnailPreview}
+                      alt="Thumbnail preview"
+                      className="h-24 w-24 rounded-md border border-border object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-24 w-24 items-center justify-center rounded-md border border-dashed border-border text-[10px] text-muted-foreground text-center">
+                      No image
+                    </div>
+                  )}
+                  {thumbnailFile && (
+                    <span className="max-w-[200px] truncate text-xs text-muted-foreground">
+                      {thumbnailFile.name}
+                    </span>
+                  )}
+                </label>
+              </div>
+
               {/* Title */}
               <div>
                 <input
@@ -142,7 +212,7 @@ export default function BasicInfoModal({ itemId, open, onClose, onSaved }: Props
               <div className="rounded-xl border border-border p-3">
                 <input
                   className="w-full bg-background text-foreground placeholder:text-muted-foreground outline-none"
-                  placeholder="Tags (กด Enter เพื่อเพิ่ม)"
+                  placeholder="Tags (Enter)"
                   value={tagInput}
                   onChange={(e) => setTagInput(e.target.value)}
                   onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addTag() } }}
