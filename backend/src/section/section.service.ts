@@ -95,7 +95,7 @@ export class SectionService {
                 throw new NotFoundException("The section are not exist.")
             // update image
             if(file){
-                const media = await this.mediaService.uploadImage(section?.ownerId, file);
+                const media = await this.mediaService.uploadImage(section.ownerId, file);
 
                 // update mediaId
                 await this.prisma.section.update({
