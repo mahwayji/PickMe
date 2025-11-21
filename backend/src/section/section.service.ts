@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, BadRequestException } from '@nestjs/comm
 import { PrismaService } from 'src/prisma/prisma.service'
 import { sectionDto } from './dto/section.dto'
 import { MediaService } from 'src/media/media.service'
+import { console } from 'inspector'
 
 @Injectable()
 export class SectionService {
@@ -67,17 +68,25 @@ export class SectionService {
     }
 
     async deleteSection(sectionId: string) {
+        
         try {
+            
             const section = await this.prisma.section.findUnique({where: {id:sectionId}})
-            if(section?.coverMediaId) await this.mediaService.deleteImage(section.coverMediaId)
+            if(section?.coverMediaId) 
+            {
+                if(section.coverMediaId!=='')
+                await this.mediaService.deleteImage(section.coverMediaId)
+            }
+        
+            await this.prisma.item.deleteMany({
+                where: { sectionId: sectionId },
+            })
             
             await this.prisma.section.delete({
                 where: { id: sectionId },
             })
-
-            await this.prisma.item.deleteMany({
-                where: { sectionId: sectionId },
-            })
+            
+            
 
             return { message: 'Section/Item deleted successfully' }
         } catch (error) {

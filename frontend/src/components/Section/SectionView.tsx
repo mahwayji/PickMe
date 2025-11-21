@@ -1,4 +1,4 @@
-import { Card,  CardContent} from '@/components/ui/card'
+import { Card} from '@/components/ui/card'
 import { Wrench } from 'lucide-react'
 import { Plus } from 'lucide-react'
 import section404noimage from '@/images/section404noimg.gif'
@@ -61,9 +61,6 @@ export const SectionView: React.FC<Props> = ({ sectionData, isLoading,ownerPageI
 
                             }  
                     </Link>
-                    <CardContent>
-                        
-                    </CardContent>
 
                 </Card>
                 

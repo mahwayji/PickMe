@@ -84,6 +84,7 @@ function App() {
 
                     <Route path = {ITEM_INFO_PATH} element={<ItemView />} />
                     <Route path={ITEM_EDIT_PATH} element={ <EditItemPage/>} />
+                    <Route path={ITEM_CREATE_PATH} element={ <CreateItemModal/>} />
               
                     <Route path = {NOT_FOUND_PATH} element={<NotFound />} />
                 </Routes>
