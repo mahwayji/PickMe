@@ -20,7 +20,6 @@ import {ConfirmDeleteDialogue} from '@/components/Section/components/ConfirmDele
 type Props = {
     open: boolean
     setOpen: (open: boolean) => void
-    data: Section[]
     setData: React.Dispatch<React.SetStateAction<Section[]>>
     setLoading: React.Dispatch<React.SetStateAction<boolean>>
     userId: string
@@ -29,21 +28,21 @@ type Props = {
 const formSchema = z.object({
     title: z.string().min(1, '**Title is required'),
     description: z.string().min(1, '**Description is required'),
-    coverMediaId: z.any().optional(),
+    coverImage: z.any().optional(),
 })
 
 
 
-export const EditSectionForm: React.FC<Props> = ({ open, setOpen, data, setData,setLoading, userId, sectionId }: Props) => {
+export const EditSectionForm: React.FC<Props> = ({ open, setOpen, setData,setLoading, userId, sectionId }: Props) => {
 
-    const [isConfirmDeleteOpen,setIsconfirmDeleteOpen] = React.useState<boolean>(false);
+    const [isConfirmDeleteOpen,setIsConfirmDeleteOpen] = React.useState<boolean>(false);
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             title: '',
             description: '',
-            coverMediaId: '',
+            coverImage: '',
         },
     })
 
@@ -54,7 +53,7 @@ export const EditSectionForm: React.FC<Props> = ({ open, setOpen, data, setData,
             form.reset({
                 title: res.data.title,
                 description: res.data.description,
-                coverMediaId: res.data.coverMediaId,
+                coverImage: res.data.coverImage,
             })
         } catch (error) {
             console.error('Error fetching section by ID:', error);
@@ -62,6 +61,7 @@ export const EditSectionForm: React.FC<Props> = ({ open, setOpen, data, setData,
     }
 
     useEffect(() => {
+        
         if (sectionId) {
             console.log('Fetching section data for ID:', sectionId);
             fetchSectionById()
@@ -70,6 +70,15 @@ export const EditSectionForm: React.FC<Props> = ({ open, setOpen, data, setData,
 
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
         toast.success('Updating section...')
+        
+        const formData = new FormData();
+        formData.append("title", values.title);
+        formData.append("description", values.description);
+        formData.append("ownerId", userId);
+
+        if(values.coverImage)
+            formData.append("coverImage", values.coverImage)
+        
         setLoading(true);
         try {
             console.log('Updating section with values:', values);
@@ -77,8 +86,14 @@ export const EditSectionForm: React.FC<Props> = ({ open, setOpen, data, setData,
                 toast.error('Log in is required to create a section')
                 return
             }
-            const res = await axiosInstance.patch(`/section/update/${sectionId}`, values)
-            setData([...data, res.data])
+            const res = await axiosInstance.patch(`/section/update/${sectionId}`, 
+                formData, {
+                    headers: {
+                        "Content-Type": 'multipart/form-data'
+                    }
+                }
+            )
+                setData(res.data)
             toast.success('Section updated successfully')
             setLoading(false);
             setOpen(false)
@@ -118,7 +133,7 @@ export const EditSectionForm: React.FC<Props> = ({ open, setOpen, data, setData,
     {/* Confirm Delete Dialog */}
     <ConfirmDeleteDialogue
       open={isConfirmDeleteOpen}
-      setOpen={setIsconfirmDeleteOpen}
+      setOpen={setIsConfirmDeleteOpen}
       onConfirm={onDelete}
     />
 
@@ -153,13 +168,13 @@ export const EditSectionForm: React.FC<Props> = ({ open, setOpen, data, setData,
               {/* coverMediaId */}
               <FormField
                 control={form.control}
-                name="coverMediaId"
+                name="coverImage"
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
                       <div className="relative w-100% h-36">
                         <Input
-                          id="coverMediaId"
+                          id="coverImage"
                           type="file"
                           className="peer border-dashed border-1 rounded-lg px-3 pt-5 pb-2 w-full h-full text-gray-700 border-gray-700 bg-transparent"
                           {...field}
@@ -240,7 +255,7 @@ export const EditSectionForm: React.FC<Props> = ({ open, setOpen, data, setData,
               <DialogFooter>
                 <Button
                   type="button"
-                  onClick={() => setIsconfirmDeleteOpen(true)}
+                  onClick={() => setIsConfirmDeleteOpen(true)}
                   className="border font-light rounded-3xl bg-red-600 text-white px-4 py-2 cursor-pointer"
                 >
                   DELETE
