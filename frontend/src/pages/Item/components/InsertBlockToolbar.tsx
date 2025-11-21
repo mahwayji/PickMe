@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { ChevronLeft, Droplets } from 'lucide-react'
 
 export type TextOptions = {
@@ -31,9 +31,14 @@ type Props = {
 }
 
 export default function InsertBlockToolbar({
-  onInsertText, onInsertImage, onInsertVideo,
-  selectedBlockId, externalView, initialText,
-  onLiveChangeText, onCloseRequested,
+  onInsertText,
+  onInsertImage,
+  onInsertVideo,
+  selectedBlockId,
+  externalView,
+  initialText,
+  onLiveChangeText,
+  onCloseRequested,
 }: Props) {
   const [view, setView] = useState<View>('menu')
 
@@ -46,7 +51,10 @@ export default function InsertBlockToolbar({
   const [italic, setItalic] = useState(false)
   const [underline, setUnderline] = useState(false)
 
-    const emitTextChange = (override: Partial<TextOptions> = {}) => {
+  const lastSelectedIdRef = useRef<string | null>(null)
+
+  // helper: ให้ parent รู้ว่า style ปัจจุบันเปลี่ยนแล้ว
+  const emitTextChange = (override: Partial<TextOptions> = {}) => {
     if (!onLiveChangeText) return
 
     const base: TextOptions = {
@@ -65,8 +73,6 @@ export default function InsertBlockToolbar({
     })
   }
 
-  const lastSelectedIdRef = useRef<string | null>(null)
-
   useEffect(() => {
     if (externalView) setView(externalView)
   }, [externalView])
@@ -81,24 +87,31 @@ export default function InsertBlockToolbar({
     const key = s.toLowerCase()
     if (namedMap[key]) return namedMap[key]
     const n = parseInt(s, 10)
-    if ([300,400,700].includes(n)) return String(n)
+    if ([300, 400, 700].includes(n)) return String(n)
     return '400'
   }
 
+  // เวลาเปลี่ยน block ที่เลือก ให้ sync ค่า style จาก initialText
   useEffect(() => {
     if (selectedBlockId && selectedBlockId !== lastSelectedIdRef.current) {
       lastSelectedIdRef.current = selectedBlockId
+
       if (initialText) {
         setFont(initialText.font ?? 'Arial, sans-serif')
         setWeight(normalizeWeight(initialText.weight))
         setSize(String(initialText.size ?? '20'))
-        setColor((initialText.color ?? '#000000').replace('#',''))
+        setColor((initialText.color ?? '#000000').replace('#', ''))
         setAlign(initialText.align ?? 'left')
         setItalic(!!initialText.italic)
         setUnderline(!!initialText.underline)
       } else {
-        setFont('Arial, sans-serif'); setWeight('400'); setSize('20'); setColor('000000')
-        setAlign('left'); setItalic(false); setUnderline(false)
+        setFont('Arial, sans-serif')
+        setWeight('400')
+        setSize('20')
+        setColor('000000')
+        setAlign('left')
+        setItalic(false)
+        setUnderline(false)
       }
     }
     if (!selectedBlockId) {
@@ -107,35 +120,29 @@ export default function InsertBlockToolbar({
   }, [selectedBlockId, initialText])
 
   const weightOptions = [
-    { label: 'Light',      value: '300' },
-    { label: 'Regular',    value: '400' },
-    { label: 'Bold',       value: '700' },
+    { label: 'Light', value: '300' },
+    { label: 'Regular', value: '400' },
+    { label: 'Bold', value: '700' },
   ]
-  const sizeOptions = ['12','14','16','18','20','24','28','32','36','48','64']
+
+  const sizeOptions = ['12', '14', '16', '18', '20', '24', '28', '32', '36', '48', '64']
+
   const fontOptions = [
-    { label: 'Arial',          value: 'Arial, sans-serif' },
-    { label: 'Verdana',        value: 'Verdana, sans-serif' },
-    { label: 'Tahoma',         value: 'Tahoma, sans-serif' },
-    { label: 'Trebuchet MS',   value: '"Trebuchet MS", sans-serif' },
-    { label: 'Times New Roman',     value: '"Times New Roman", serif' },
-    { label: 'Georgia',             value: 'Georgia, serif' },
-    { label: 'Garamond',            value: 'Garamond, serif' },
-    { label: 'Courier New',     value: '"Courier New", monospace' },
-    { label: 'Brush Script MT',   value: '"Brush Script MT", cursive' },
-]
+    { label: 'Arial', value: 'Arial, sans-serif' },
+    { label: 'Verdana', value: 'Verdana, sans-serif' },
+    { label: 'Tahoma', value: 'Tahoma, sans-serif' },
+    { label: 'Trebuchet MS', value: '"Trebuchet MS", sans-serif' },
+    { label: 'Times New Roman', value: '"Times New Roman", serif' },
+    { label: 'Georgia', value: 'Georgia, serif' },
+    { label: 'Garamond', value: 'Garamond, serif' },
+    { label: 'Courier New', value: '"Courier New", monospace' },
+    { label: 'Brush Script MT', value: '"Brush Script MT", cursive' },
+  ]
 
-
-  const composedText = useMemo<TextOptions>(() => ({
-    font,
-    weight,
-    size: Number(size),
-    color: color?.startsWith('#') ? color : `#${color}`,
-    align,
-    italic,
-    underline,
-  }), [font, weight, size, color, align, italic, underline])
-
-  const backToMenu = () => { onCloseRequested?.(); setView('menu') }
+  const backToMenu = () => {
+    onCloseRequested?.()
+    setView('menu')
+  }
 
   return (
     <aside className="fixed left-0 top-0 z-40 h-screen w-[340px] border-r border-border bg-background px-6 pt-6 text-foreground">
@@ -143,13 +150,26 @@ export default function InsertBlockToolbar({
         <div className="space-y-6">
           <div className="text-sm font-medium">Insert Block</div>
 
+          {/* TEXT */}
           <button
             className="block text-left text-base transition-transform hover:scale-[1.05]"
-            onClick={() => { onInsertText(composedText); setView('text') }}
+            onClick={() => {
+              onInsertText({
+                font,
+                weight,
+                size: Number(size),
+                color: color.startsWith('#') ? color : `#${color}`,
+                align,
+                italic,
+                underline,
+              })
+              setView('text')
+            }}
           >
             ▸ Text
           </button>
 
+          {/* IMAGE */}
           <button
             className="block text-left text-base transition-transform hover:scale-[1.05]"
             onClick={() => document.getElementById('pm-image-input')?.click()}
@@ -161,9 +181,14 @@ export default function InsertBlockToolbar({
             type="file"
             accept="image/*"
             className="hidden"
-            onChange={(e) => { const f = e.target.files?.[0]; if (f) onInsertImage(f); (e.currentTarget.value = '') }}
+            onChange={(e) => {
+              const f = e.target.files?.[0]
+              if (f) onInsertImage(f)
+              e.currentTarget.value = ''
+            }}
           />
 
+          {/* VIDEO */}
           <button
             className="block text-left text-base transition-transform hover:scale-[1.05]"
             onClick={() => document.getElementById('pm-video-input')?.click()}
@@ -175,7 +200,11 @@ export default function InsertBlockToolbar({
             type="file"
             accept="video/*"
             className="hidden"
-            onChange={(e) => { const f = e.target.files?.[0]; if (f) onInsertVideo(f); (e.currentTarget.value = '') }}
+            onChange={(e) => {
+              const f = e.target.files?.[0]
+              if (f) onInsertVideo(f)
+              e.currentTarget.value = ''
+            }}
           />
         </div>
       )}
@@ -199,7 +228,7 @@ export default function InsertBlockToolbar({
               emitTextChange({ font: next })
             }}
           >
-            {fontOptions.map(opt => (
+            {fontOptions.map((opt) => (
               <option key={opt.value} value={opt.value}>
                 {opt.label}
               </option>
@@ -217,8 +246,10 @@ export default function InsertBlockToolbar({
                 emitTextChange({ weight: next })
               }}
             >
-              {weightOptions.map(w => (
-                <option key={w.value} value={w.value}>{w.label}</option>
+              {weightOptions.map((w) => (
+                <option key={w.value} value={w.value}>
+                  {w.label}
+                </option>
               ))}
             </select>
 
@@ -231,13 +262,19 @@ export default function InsertBlockToolbar({
                 emitTextChange({ size: Number(next) })
               }}
             >
-              {sizeOptions.map(s => <option key={s} value={s}>{s}</option>)}
+              {sizeOptions.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
             </select>
           </div>
 
           {/* Color */}
           <div className="flex items-center rounded-2xl border border-border bg-background">
-            <div className="px-3 text-muted-foreground"><Droplets className="h-4 w-4" /></div>
+            <div className="px-3 text-muted-foreground">
+              <Droplets className="h-4 w-4" />
+            </div>
             <input
               className="flex-1 bg-transparent p-2 outline-none"
               placeholder="000000"
@@ -253,10 +290,12 @@ export default function InsertBlockToolbar({
 
           {/* Align */}
           <div className="inline-flex overflow-hidden rounded-2xl border border-border">
-            {(['left','center','right'] as const).map(a => (
+            {(['left', 'center', 'right'] as const).map((a) => (
               <button
                 key={a}
-                className={`px-4 py-2 text-sm ${align===a ? 'bg-muted' : 'hover:bg-muted'}`}
+                className={`px-4 py-2 text-sm ${
+                  align === a ? 'bg-muted' : 'hover:bg-muted'
+                }`}
                 onClick={() => {
                   setAlign(a)
                   emitTextChange({ align: a })
@@ -270,9 +309,11 @@ export default function InsertBlockToolbar({
           {/* Decorations */}
           <div className="inline-flex overflow-hidden rounded-2xl border border-border">
             <button
-              className={`px-4 py-2 text-sm italic ${italic ? 'bg-muted' : 'hover:bg-muted'}`}
+              className={`px-4 py-2 text-sm italic ${
+                italic ? 'bg-muted' : 'hover:bg-muted'
+              }`}
               onClick={() => {
-                setItalic(prev => {
+                setItalic((prev) => {
                   const next = !prev
                   emitTextChange({ italic: next })
                   return next
@@ -282,9 +323,11 @@ export default function InsertBlockToolbar({
               I
             </button>
             <button
-              className={`px-4 py-2 text-sm ${underline ? 'bg-muted' : 'hover:bg-muted'}`}
+              className={`px-4 py-2 text-sm ${
+                underline ? 'bg-muted' : 'hover:bg-muted'
+              }`}
               onClick={() => {
-                setUnderline(prev => {
+                setUnderline((prev) => {
                   const next = !prev
                   emitTextChange({ underline: next })
                   return next
@@ -294,40 +337,6 @@ export default function InsertBlockToolbar({
               Aa
             </button>
           </div>
-        </div>
-      )}
-
-      {view === 'image' && (
-        <div className="space-y-4">
-          <button
-            onClick={() => { onCloseRequested?.(); setView('menu') }}
-            className="inline-flex items-center gap-2 text-sm hover:underline"
-          >
-            <ChevronLeft className="h-4 w-4" /> Insert Image
-          </button>
-          <input
-            type="file"
-            accept="image/*"
-            className="block w-full text-sm"
-            onChange={(e)=>{ const f = e.target.files?.[0]; if (f) onInsertImage(f) }}
-          />
-        </div>
-      )}
-
-      {view === 'video' && (
-        <div className="space-y-4">
-          <button
-            onClick={() => { onCloseRequested?.(); setView('menu') }}
-            className="inline-flex items-center gap-2 text-sm hover:underline"
-          >
-            <ChevronLeft className="h-4 w-4" /> Insert Video
-          </button>
-          <input
-            type="file"
-            accept="video/*"
-            className="block w-full text-sm"
-            onChange={(e)=>{ const f = e.target.files?.[0]; if (f) onInsertVideo(f) }}
-          />
         </div>
       )}
     </aside>

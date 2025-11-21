@@ -7,19 +7,20 @@ import { getItem } from '@/services/item'
 import InsertBlockToolbar from './components/InsertBlockToolbar'
 import type { TextOptions } from './components/InsertBlockToolbar'
 import type { ItemDto } from '@/services/item'
-import { ArrowUp, ArrowDown, Trash2 } from "lucide-react"
+import { ArrowUp, ArrowDown, Trash2 } from 'lucide-react'
 import {
   listItemBlocks,
   createItemBlock,
   updateItemBlock,
   deleteItemBlock,
   reorderItemBlocks,
+  uploadItemBlock,
   type BlockDto,
 } from '@/services/ItemBlock'
 
 type TextBlock = { id: string; type: 'text'; content: string; opts?: TextOptions }
-type ImageBlock = { id: string; type: 'image'; caption?: string }
-type VideoBlock = { id: string; type: 'video'; caption?: string }
+type ImageBlock = { id: string; type: 'image'; url: string; caption?: string }
+type VideoBlock = { id: string; type: 'video'; url: string; caption?: string }
 type Block = TextBlock | ImageBlock | VideoBlock
 
 // --- helper: debounce ---
@@ -49,20 +50,29 @@ export default function EditItemPage() {
 
         // load block BE
         const serverBlocks = await listItemBlocks(itemId)
-        console.log("🔥 RAW SERVER BLOCKS:", JSON.stringify(serverBlocks, null, 2))
         const mapped: Block[] = serverBlocks.map((b: BlockDto) => {
           if (b.type === 'text') {
             return {
-              id: (b as any).id,
+              id: b.id,
               type: 'text',
               content: b.text ?? '',
               opts: (b as any).style ?? {},
             }
           }
           if (b.type === 'image') {
-            return { id: (b as any).id, type: 'image', caption: b.caption }
+            return {
+              id: b.id,
+              type: 'image',
+              url: b.url,
+              caption: b.caption,
+            }
           }
-          return { id: (b as any).id, type: 'video', caption: b.caption }
+          return {
+            id: b.id,
+            type: 'video',
+            url: b.url,
+            caption: b.caption,
+          }
         })
         setBlocks(mapped)
       } catch (e: any) {
@@ -84,35 +94,65 @@ export default function EditItemPage() {
     )
   }
 
-  const addBlock = async (type: Block['type'], opts?: TextOptions, fileName?: string): Promise<string> => {
-    try {
-      if (type === 'text') {
-        const created = await createItemBlock(itemId, { type: 'text', text: '', style: opts ?? {} })
-        setBlocks(prev => [...prev, { id: created.id, type: 'text', content: '', opts }])
-        return created.id
-      }
-      if (type === 'image') {
-        // pin url placeholder for now
-        const created = await createItemBlock(itemId, {
-          type: 'image',
-          url: `https://local.invalid/tmp/${crypto.randomUUID()}.png`,
-          caption: fileName,
-        })
-        setBlocks(prev => [...prev, { id: created.id, type: 'image', caption: fileName }])
-        return created.id
-      }
+const addBlock = async (
+  type: Block['type'],
+  opts?: TextOptions,
+  file?: File,
+): Promise<string> => {
+  try {
+    if (type === 'text') {
       const created = await createItemBlock(itemId, {
-        type: 'video',
-        url: `https://local.invalid/tmp/${crypto.randomUUID()}.mp4`,
-        caption: fileName,
+        type: 'text',
+        text: '',
+        style: opts ?? {},
       })
-      setBlocks(prev => [...prev, { id: created.id, type: 'video', caption: fileName }])
+      setBlocks(prev => [
+        ...prev,
+        { id: created.id, type: 'text', content: '', opts },
+      ])
       return created.id
-    } catch (e: any) {
-      toast.error(e?.response?.data?.message || e?.message || 'Fail to Create Block')
-      throw e
     }
+
+    if (type === 'image' || type === 'video') {
+      if (!file) throw new Error('File is required for media block')
+
+      const created = await uploadItemBlock(itemId, file)
+
+      if (created.type === 'image') {
+        setBlocks(prev => [
+          ...prev,
+          {
+            id: created.id,
+            type: 'image',
+            url: created.url,
+            caption: created.caption ?? file.name,
+          },
+        ])
+      } else if (created.type === 'video') {
+        setBlocks(prev => [
+          ...prev,
+          {
+            id: created.id,
+            type: 'video',
+            url: created.url,
+            caption: created.caption ?? file.name,
+          },
+        ])
+      } else {
+        console.error('Unexpected block type from upload', created)
+      }
+
+      return created.id
+    }
+
+    throw new Error('Unsupported block type in addBlock()')
+  } catch (e: any) {
+    toast.error(
+      e?.response?.data?.message || e?.message || 'Fail to Create Block',
+    )
+    throw e
   }
+}
 
   // autosave: text & style
   const debouncedUpdateText = useMemo(
@@ -148,31 +188,31 @@ export default function EditItemPage() {
       if (next.length) {
         await reorderItemBlocks(itemId, next.map(b => b.id))
       }
-    } catch (e:any) {
+    } catch (e: any) {
       toast.error(e?.response?.data?.message || e?.message || 'Fail to delete')
     }
   }
 
   const moveBlock = async (id: string, direction: 'up' | 'down') => {
-      setBlocks(prev => {
-        const idx = prev.findIndex(b => b.id === id)
-        if (idx === -1) return prev
+    setBlocks(prev => {
+      const idx = prev.findIndex(b => b.id === id)
+      if (idx === -1) return prev
 
-        const targetIndex = direction === 'up' ? idx - 1 : idx + 1
-        if (targetIndex < 0 || targetIndex >= prev.length) return prev
+      const targetIndex = direction === 'up' ? idx - 1 : idx + 1
+      if (targetIndex < 0 || targetIndex >= prev.length) return prev
 
-        const next = [...prev]
-        const tmp = next[idx]
-        next[idx] = next[targetIndex]
-        next[targetIndex] = tmp
+      const next = [...prev]
+      const tmp = next[idx]
+      next[idx] = next[targetIndex]
+      next[targetIndex] = tmp
 
-        reorderItemBlocks(itemId, next.map(b => b.id)).catch((e: any) => {
-          console.error('reorder failed', e)
-          toast.error(e?.response?.data?.message || e?.message || 'เรียงลำดับไม่สำเร็จ')
-        })
-
-        return next
+      reorderItemBlocks(itemId, next.map(b => b.id)).catch((e: any) => {
+        console.error('reorder failed', e)
+        toast.error(e?.response?.data?.message || e?.message || 'Cant rearrange')
       })
+
+      return next
+    })
   }
 
   return (
@@ -184,9 +224,9 @@ export default function EditItemPage() {
           selectedBlock?.type === 'text'
             ? 'text'
             : selectedBlock?.type === 'image'
-            ? 'image'
+            ? 'menu'
             : selectedBlock?.type === 'video'
-            ? 'video'
+            ? 'menu'
             : 'menu'
         }
         initialText={selectedBlock?.type === 'text' ? selectedBlock.opts ?? null : null}
@@ -195,14 +235,12 @@ export default function EditItemPage() {
           setSelectedBlockId(id)
         }}
         onInsertImage={async (file) => {
-          const id = await addBlock('image', undefined, file?.name)
+          const id = await addBlock('image', undefined, file)
           setSelectedBlockId(id)
-          // pin
         }}
         onInsertVideo={async (file) => {
-          const id = await addBlock('video', undefined, file?.name)
+          const id = await addBlock('video', undefined, file)
           setSelectedBlockId(id)
-          // pin
         }}
         onLiveChangeText={(opts) => {
           if (!selectedBlockId) return
@@ -262,19 +300,6 @@ export default function EditItemPage() {
                 />
               </div>
 
-              {/* Quick Insert */}
-              <div className="mb-6 flex justify-center">
-                <button
-                  onClick={async () => {
-                    const id = await addBlock('text')
-                    setSelectedBlockId(id)
-                  }}
-                  className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground hover:bg-muted"
-                >
-                  + Insert Block
-                </button>
-              </div>
-
               {/* Blocks */}
               <div className="space-y-4">
                 {blocks.map((b) => (
@@ -312,6 +337,7 @@ export default function EditItemPage() {
                         <Trash2 className="w-4 h-4 text-red-500" />
                       </button>
                     </div>
+
                     {b.type === 'text' && (
                       <textarea
                         className="w-full min-h-[160px] rounded-lg border border-border bg-background p-3 outline-none placeholder:text-muted-foreground"
@@ -335,14 +361,42 @@ export default function EditItemPage() {
                     )}
 
                     {b.type === 'image' && (
-                      <div className="rounded-lg border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-                        Image block: {b.caption || 'file'}
+                      <div className="flex flex-col items-center gap-2">
+                        {b.url ? (
+                          <img
+                            src={b.url}
+                            alt={b.caption || ''}
+                            className="max-h-80 w-auto rounded-lg border border-border object-contain"
+                          />
+                        ) : (
+                          <div className="flex h-40 w-full items-center justify-center rounded-lg border border-dashed border-border text-xs text-muted-foreground">
+                            Uploading…
+                          </div>
+                        )}
+                        <div className="text-xs text-muted-foreground">
+                          {b.caption || 'Image'}
+                        </div>
                       </div>
                     )}
 
                     {b.type === 'video' && (
-                      <div className="rounded-lg border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-                        Video block: {b.caption || 'file'}
+                      <div className="rounded-lg border border-dashed border-border p-4">
+                        {b.url ? (
+                          <video
+                            src={b.url}
+                            controls
+                            className="mx-auto mb-2 max-h-96"
+                          />
+                        ) : (
+                          <div className="flex h-40 w-full items-center justify-center rounded-lg border border-dashed border-border text-xs text-muted-foreground">
+                            Uploading…
+                          </div>
+                        )}
+                        {b.caption && (
+                          <div className="text-center text-sm text-muted-foreground">
+                            {b.caption || 'Video'}
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
@@ -359,6 +413,7 @@ export default function EditItemPage() {
         onClose={() => setShowBasicModal(false)}
         onSaved={(updated: ItemDto) => {
           if (updated.title !== undefined) setTitle(updated.title)
+          {nav(-1)}
         }}
       />
     </div>

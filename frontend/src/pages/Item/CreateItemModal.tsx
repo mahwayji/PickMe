@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import Modal from '@/components/modal'
 import { Button } from '@/components/ui/button'
@@ -6,10 +6,12 @@ import { toast } from 'sonner'
 import { createItem } from '@/services/item'
 
 export default function CreateItemModal() {
-  const {sectionId = '' } = useParams()
+  const { sectionId = '' } = useParams()
   const nav = useNavigate()
 
-  const [file, setFile] = useState<File | null>(null) // wait for real upload
+  const [file, setFile] = useState<File | null>(null)
+  const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null)
+
   const [title, setTitle] = useState('')
   const [desc, setDesc] = useState('')
   const [tags, setTags] = useState<string[]>([])
@@ -18,30 +20,67 @@ export default function CreateItemModal() {
 
   const titleCount = useMemo(() => `${title.length}/60`, [title])
   const descCount = useMemo(() => `${desc.length}/500`, [desc])
-  
-  const onClose = () => nav(-1)
+
+  const onClose = () => {
+    if (thumbnailPreview && thumbnailPreview.startsWith('blob:')) {
+      URL.revokeObjectURL(thumbnailPreview)
+    }
+    setThumbnailPreview(null)
+    setFile(null)
+    nav(-1)
+  }
 
   const addTag = () => {
     const t = tagInput.trim()
     if (!t) return
-    if (tags.includes(t)) return setTagInput('')
-    if (tags.length >= 10) return toast.error('Tag up to 10 tags')
-    setTags([...tags, t]); setTagInput('')
+    if (tags.includes(t)) {
+      setTagInput('')
+      return
+    }
+    if (tags.length >= 10) {
+      toast.error('Tag up to 10 tags')
+      return
+    }
+    setTags(prev => [...prev, t])
+    setTagInput('')
   }
-  const removeTag = (t: string) => setTags(tags.filter(x => x !== t))
+
+  const removeTag = (t: string) => {
+    setTags(prev => prev.filter(x => x !== t))
+  }
+
+  const handleFileChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
+    const f = e.target.files?.[0]
+    if (!f) return
+
+    if (thumbnailPreview && thumbnailPreview.startsWith('blob:')) {
+      URL.revokeObjectURL(thumbnailPreview)
+    }
+
+    setFile(f)
+    setThumbnailPreview(URL.createObjectURL(f))
+  }
 
   const onSave = async () => {
-    if (!title.trim()) { toast.error('Items name'); return }
+    if (!title.trim()) {
+      toast.error('Items name')
+      return
+    }
+    if (!sectionId) {
+      toast.error('Section not found')
+      return
+    }
+
     setSaving(true)
     try {
       const payload = {
         title: title.trim().slice(0, 60),
         description: desc.trim() ? desc.trim().slice(0, 500) : undefined,
         tags: tags.length ? tags : undefined,
-        thumbnail: file ? file: undefined,
       }
 
-      await createItem(sectionId, payload)
+      await createItem(sectionId, payload, file ?? undefined)
+
       toast.success('Create Item successfully')
       onClose()
     } catch (e: any) {
@@ -50,6 +89,14 @@ export default function CreateItemModal() {
       setSaving(false)
     }
   }
+
+  useEffect(() => {
+    return () => {
+      if (thumbnailPreview && thumbnailPreview.startsWith('blob:')) {
+        URL.revokeObjectURL(thumbnailPreview)
+      }
+    }
+  }, [thumbnailPreview])
 
   return (
     <Modal open onClose={onClose}>
@@ -82,16 +129,27 @@ export default function CreateItemModal() {
       <div className="px-4 pb-6 pt-2 sm:px-5 space-y-4">
         {/* Thumbnail */}
         <label
-          className="block rounded-2xl border border-dashed border-border p-8 text-center text-muted-foreground hover:border-foreground/40 cursor-pointer"
+          className="block rounded-2xl border border-dashed border-border p-4 text-center text-muted-foreground hover:border-foreground/40 cursor-pointer"
         >
           <input
             type="file"
             accept="image/*"
             className="hidden"
-            onChange={(e) => e.target.files?.[0] && setFile(e.target.files[0])}
+            onChange={handleFileChange}
           />
-          <div className="space-y-2">
-            <div className="text-sm">
+          <div className="flex flex-col items-center gap-3">
+            {thumbnailPreview ? (
+              <img
+                src={thumbnailPreview}
+                alt="Thumbnail preview"
+                className="h-20 w-20 rounded-md border border-border object-cover"
+              />
+            ) : (
+              <div className="flex h-20 w-20 items-center justify-center rounded-md border border-dashed border-border text-[11px]">
+                Thumbnail
+              </div>
+            )}
+            <div className="text-xs text-muted-foreground">
               {file ? file.name : 'Select/Drop Thumbnail'}
             </div>
           </div>
@@ -105,7 +163,9 @@ export default function CreateItemModal() {
             value={title}
             onChange={(e) => setTitle(e.target.value.slice(0, 60))}
           />
-          <div className="mt-1 text-right text-xs text-muted-foreground">{titleCount}</div>
+          <div className="mt-1 text-right text-xs text-muted-foreground">
+            {titleCount}
+          </div>
         </div>
 
         {/* Description */}
@@ -116,7 +176,9 @@ export default function CreateItemModal() {
             value={desc}
             onChange={(e) => setDesc(e.target.value.slice(0, 500))}
           />
-          <div className="mt-1 text-right text-xs text-muted-foreground">{descCount}</div>
+          <div className="mt-1 text-right text-xs text-muted-foreground">
+            {descCount}
+          </div>
         </div>
 
         {/* Tags */}
@@ -126,19 +188,34 @@ export default function CreateItemModal() {
             placeholder="Tags (กด Enter เพื่อเพิ่ม)"
             value={tagInput}
             onChange={(e) => setTagInput(e.target.value)}
-            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addTag() } }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault()
+                addTag()
+              }
+            }}
           />
           {tags.length > 0 && (
             <div className="mt-2 flex flex-wrap gap-2">
               {tags.map(t => (
-                <span key={t} className="inline-flex items-center gap-2 rounded-full border border-border px-3 py-1 text-sm">
+                <span
+                  key={t}
+                  className="inline-flex items-center gap-2 rounded-full border border-border px-3 py-1 text-sm"
+                >
                   {t}
-                  <button onClick={() => removeTag(t)} className="text-muted-foreground hover:text-foreground">✕</button>
+                  <button
+                    onClick={() => removeTag(t)}
+                    className="text-muted-foreground hover:text-foreground"
+                  >
+                    ✕
+                  </button>
                 </span>
               ))}
             </div>
           )}
-          <div className="mt-1 text-right text-xs text-muted-foreground">{tags.length}/10</div>
+          <div className="mt-1 text-right text-xs text-muted-foreground">
+            {tags.length}/10
+          </div>
         </div>
       </div>
     </Modal>
