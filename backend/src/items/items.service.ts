@@ -441,4 +441,5 @@ export class ItemsService {
     await this.prisma.itemStat.deleteMany({ where: { itemId: id } });
     await this.prisma.item.delete({ where: { id } });
   }
+
 }

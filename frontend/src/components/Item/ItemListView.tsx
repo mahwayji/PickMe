@@ -1,4 +1,4 @@
-import { Card,  CardContent} from '@/components/ui/card'
+import { Card } from '@/components/ui/card'
 import { Plus } from 'lucide-react'
 import section404noimage from '@/images/section404noimg.gif'
 import type { Item } from '@/types/item'
@@ -7,7 +7,8 @@ import { toast } from 'sonner'
 import { axiosInstance } from '@/lib/axios'
 import { ConfirmDeleteDialogueItem } from './components/ConfirmDeleteDialogueItem'
 import React from 'react'
-
+import { ITEM_CREATE_PATH, ITEM_EDIT_PATH } from '@/constants/routes';
+import { Link, useParams } from 'react-router-dom'
 
 type Props = {
     itemData: Item[]
@@ -21,6 +22,8 @@ export const ItemListView: React.FC<Props> = ({ itemData,ownerPageId,userId, isL
 
     const [isConfirmOpen, setIsConfirmOpen] = React.useState<boolean >(false);
     const [selectedItemId, setSelectedItemId] = React.useState<string|null >(null);
+
+    const {username , sectionId} = useParams(); 
 
     const onDelete = async () => {
             toast.success('Deleting section...')
@@ -58,22 +61,21 @@ export const ItemListView: React.FC<Props> = ({ itemData,ownerPageId,userId, isL
                             }}
                         />
                     </div>   )}
+                    <Link to={ITEM_EDIT_PATH.replace(':itemId', item ? item.id : '404')}>
                     <img
                             src={ section404noimage} 
                             className="w-full h-full object-cover"
                         />   
                         
-
-                    <CardContent>
-                        
-                    </CardContent>
-
+                    </Link>
                 </Card>
                 
             ))}
             {ownerPageId === userId && (
             <Card className="w-[206px] h-[206px] flex items-center justify-center rounded-none border-none cursor-pointer" style={{ backgroundColor: '#D9D9D9' }} >  
-                <Plus size={64} className="text-gray-400" strokeWidth={0.75} />
+                <Link className='flex w-full h-full items-center justify-center' to={ITEM_CREATE_PATH.replace(':username', username ? username : '404').replace(':sectionId', sectionId ? sectionId : '404')}>
+                    <Plus size={64} className="text-gray-400 " strokeWidth={0.75} />
+                </Link>
             </Card> 
             )}
         </div>

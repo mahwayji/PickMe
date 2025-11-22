@@ -22,6 +22,11 @@ export class ItemsController {
     return this.itemsService.listBySection(sectionId)
   }
 
+  /*@Delete('sections/:sectionId/items/delete')
+  async deleteAllItemBySectionId(@Param('sectionId') sectionId: string){
+    return this.itemsService.deleteAllItemBySectionId(sectionId)
+  }*/
+
   @Get('items/:id')
   getOne(@Param('id') id: string) {
     return this.itemsService.getOne(id)
