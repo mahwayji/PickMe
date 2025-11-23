@@ -3,9 +3,7 @@ import SideBar from "@/components/utils/SideBar";
 import { ThemeToggle } from "@/components/utils/ThemeTogglebutton";
 import ProfileSummaryCard from "@/components/Admin/User/components/Home/ProfileSummaryCard";
 import TagPanel from "@/components/Admin/User/components/Tags/TagPanel";
-import { Button } from "@/components/ui/button";
 import { axiosInstance } from "@/lib/axios";
-import axios from "axios";
 
 // แท็กทั้งหมดที่อยากโชว์ใน TagPanel
 /*const popularTags = [
@@ -64,39 +62,6 @@ const Home: React.FC = () => {
 
   const handleSelectTag = (t: string | null) => {
     setActiveTag(t);
-  };
-
-  const handleCreateTag = () => {
-    console.log("Create Tag clicked");
-    const newTag = { name: "SteelBallRun" };
-            const createTag = async () => {
-          try {
-            const response = await axiosInstance.post('/tag/create', newTag);
-            console.log('Tag created successfully:', response.data);
-          } catch (error) {
-            if (axios.isAxiosError(error)) { // Type guard to ensure 'error' is an AxiosError
-              console.error('Error creating tag:', error.message);
-              if (error.response) {
-                // The request was made and the server responded with a status code
-                // that falls out of the range of 2xx
-                console.error('Server responded with:', error.response.data);
-                console.error('Status code:', error.response.status);
-              } else if (error.request) {
-                // The request was made but no response was received
-                console.error('No response received:', error.request);
-              } else {
-                // Something happened in setting up the request that triggered an Error
-                console.error('Axios setup error:', error.message);
-              }
-            } else {
-              // Non-Axios error
-              console.error('An unexpected error occurred:', error);
-            }
-          }
-        };
-        
-
-    createTag();
   };
 
   const fetchTags = async () => {
@@ -197,9 +162,6 @@ const Home: React.FC = () => {
                   activeTag={activeTag}
                   onSelectTag={handleSelectTag}
                 />
-                 <Button className="mt-4 w-full" onClick={handleCreateTag}>
-                  Create Tag
-                </Button> 
               </div>
             </div>
           </div>
