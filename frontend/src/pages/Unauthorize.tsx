@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom"
-import Unauthorized from '@/images/Unauthorized.gif'
+import Unauthorized from '@/images/Unauthorized.png'
 import { Button } from "@/components/ui/button"
 import { BASE_PATH } from "@/constants/routes"
 const Unauthorize = () => {

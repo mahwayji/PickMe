@@ -7,8 +7,8 @@ import { axiosInstance } from '@/lib/axios'
 import type { UserProfile } from '@/types/userProfile'
 import type { Item } from '@/types/item'
 import { toast } from 'sonner'
-import section404noimage from '@/images/section404noimg.gif'
 import { ItemListView } from '@/components/Item/ItemListView';
+import { MediaImage } from '@/components/utils/MediaToImage'
 
 
 const Section: React.FC = () => {
@@ -49,28 +49,15 @@ const Section: React.FC = () => {
     }
     }
 
-    /*
-    const handleCreateItem = async () => {
-    setLoading(true)
-    try { 
-        const fakeItem = {title: "trial",description: "new test item"}
-        const res = await axiosInstance.post(`/sections/${sectionId}/items`, fakeItem)
-        console.log(res.data)
-    }
-    catch(error){
-      toast.error("Can't get this user profile!")
-    }
-    setLoading(false)
-    } 
-    */
     useEffect(() => {
 
         fetchUserId();
         if (username) fetchProfile();
         if (userId) fetchItem();
 
-      }, [username,sectionId,userId,isLoading]);
+      }, [username,sectionId,userId]);
 
+    console.log(data)
     return (
         <div className="text-foreground min-h-screen text-center" >
             <SideBar />
@@ -102,10 +89,11 @@ const Section: React.FC = () => {
                     
                     <div className="font-light text-xl text-black-1000 flex items-center gap-5">
                         <Link className='font-light text-xl text-black-1000 flex items-center gap-5' to={PROFILE_INFO_PATH.replace(':username', username ? username : '404')}>
-                            <img
-                                src={data ? section404noimage: section404noimage } 
-                                className="w-[45px] h-[45px] object-cover rounded-full"
-                            />  
+                        { 
+                        <MediaImage
+                            mediaId= {data?.profileMediaId}
+                            className="w-[45px] h-[45px] object-cover rounded-full"
+                        /> } 
                             
                             {data? data.firstName: 'Anonymous'} {data? data.lastName: 'King'}
                         </Link>
@@ -119,6 +107,7 @@ const Section: React.FC = () => {
                     </div>
                 </div>
                 }
+
                 {/* Seperator */}
                 <div className="w-full h-px bg-gray-300 my-[10px]"></div>
 

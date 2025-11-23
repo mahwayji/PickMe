@@ -27,7 +27,7 @@ const formSchema = z.object({
     ownerId : z.string().min(1, '**Owner ID is required'),
     title: z.string().min(1, '**Title is required'),
     description: z.string().min(1, '**Description is required'),
-    coverMediaId: z.any().optional(),
+    coverImage: z.any().optional(),
 })
 
 
@@ -37,21 +37,34 @@ export const CreateSectionForm: React.FC<Props> = ({ open, setOpen, data, setDat
         defaultValues: {
             title: '',
             description: '',
-            coverMediaId: '',
+            coverImage: undefined,
             ownerId: userId
         },
     })
 
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
+        const formData = new FormData();
+        formData.append("title", values.title);
+        formData.append("description", values.description);
+        formData.append("ownerId", userId);
+
+        if(values.coverImage)
+            formData.append("coverImage", values.coverImage)
+        
         toast.success('Creating section...')
         try {
-            values.ownerId = userId;
-            console.log('Creating section with values:', values);
             if (!userId) {
                 toast.error('User ID is required to create a section')
                 return
             }
-            const res = await axiosInstance.post('/section/create', values)
+            console.log(formData)
+            const res = await axiosInstance.post('/section/create', 
+                formData, {
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                    }
+                }
+            )
             setData([...data, res.data])
             toast.success('Section created successfully')
             setOpen(false)
@@ -82,13 +95,13 @@ export const CreateSectionForm: React.FC<Props> = ({ open, setOpen, data, setDat
                 </DialogHeader>
                     <FormField
                         control={form.control}
-                        name="coverMediaId" 
+                        name="coverImage" 
                         render={({ field }) => (
                         <FormItem>
                         <FormControl>
                             <div className="relative w-100% h-36">
                                 <Input
-                                    id='coverMediaId'
+                                    id='coverImage'
                                     type='file'
                                     className="peer border-dashed border-1 rounded-lg px-3 pt-5 pb-2 w-full h-full text-gray-700 border-gray-700 bg-transparent"
                                     {...field}

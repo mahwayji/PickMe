@@ -1,48 +1,17 @@
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { ITEM_INFO_PATH, PROFILE_INFO_PATH } from '@/constants/routes'
-import { axiosInstance } from '@/lib/axios';
-import type { Item } from '@/types/item';
-import { isAxiosError } from 'axios';
-import React, { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { toast } from 'sonner';
 
-//demo
-import RacoonDance from '@/images/coolRacoon.gif'
 import { Button } from '@/components/ui/button';
-import Loading from '../Loading';
-import { demoItems } from './DemoData';
+import { MediaImage } from '@/components/utils/MediaToImage';
+import type { Item } from '@/types/item';
+import { Separator } from '@/components/ui/separator';
 
+type Props = {
+    feed: Item[],   
+}
 
-const ItemMedia: React.FC = () => {
-    const [feed, setFeed] = useState< Item[]>([]);
-
-    const [loading, setLoading] = useState<boolean>(true)
-
-    const getFeed = useCallback(async () => {
-        try {
-            const response = await axiosInstance.get(`/feed`)
-            setFeed(response.data)
-        } catch (error) {
-            if(isAxiosError(error)){
-                const errorMessage = error.response?.data?.message || "Something went wrong"
-                toast.error(errorMessage)
-            } else {
-                toast.error("An unexpected error occurred")
-            }
-        }
-        finally {
-            setLoading(false)
-        }
-    }, [])
-
-    useEffect(() => {
-        getFeed()
-        setFeed(demoItems) //demo test 
-    },[])
-
-
-    if(loading) return (<Loading />)
+const ItemMedia = ({feed}: Props) => {
 
     if(feed.length === 0) return (
       <div>
@@ -58,13 +27,13 @@ const ItemMedia: React.FC = () => {
                             <CardHeader className = 'flex-row justify-between'>
                                 <div className = 'flex items-center'>
                                     <Link to= {PROFILE_INFO_PATH} >
-                                            <img
-                                            src = 'https://nest-library-api-mahwayji.s3.ap-southeast-2.amazonaws.com/images/doog'
-                                            className="w-10 h-10 rounded-full flex items-center justify-center ring-2 shadow-md"
+                                            <MediaImage
+                                            mediaId = {item.profileMediaId}
+                                            className="w-10 h-10 rounded-full flex items-center justify-center ring-1 shadow-md"
                                             />
                                     </Link>
                                     <CardTitle className = 'text-sm font-semibold px-2'>
-                                      profile
+                                      {item.username}
                                     </CardTitle>
                                 </div>
                                 <CardFooter>
@@ -74,7 +43,7 @@ const ItemMedia: React.FC = () => {
                                 </CardFooter>
                             </CardHeader>
 
-                            <img src = {RacoonDance} alt = 'Loading' className = 'block mx-auto max-h-[400px] w-auto'/>                           
+                            <MediaImage mediaId = {item.thumbnailId} alt = 'Loading' className = 'block mx-auto max-h-[400px] w-auto'/>                           
                             <br></br>
                             <CardContent className = 'text-left p-4'>
                               <h2 className = 'font-bold'>
@@ -95,8 +64,10 @@ const ItemMedia: React.FC = () => {
                 )
                     
             })}
+            
+            <Separator className = 'py-2' />
             <div>
-              That's all of the items!
+                That's all of the items!
             </div>
         </div>
     )

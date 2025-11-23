@@ -7,23 +7,44 @@ export type CreateItemPayload = {
   thumbnailMediaId?: string
 }
 
-export async function createItem(sectionId: string, payload: CreateItemPayload) {
+export type UpdateItemPayload = {
+  title?: string
+  description?: string
+  tags?: string[]
+  blocks?: any[]
+}
+
+export async function createItem( sectionId: string, payload: CreateItemPayload, thumbnailFile?: File ) {
+  const formData = new FormData()
+  formData.append('title', payload.title)
+  if (payload.description) formData.append('description', payload.description)
+  if (payload.tags) {
+    payload.tags.forEach((t) => formData.append('tags', t))
+  }
+  if (thumbnailFile) {
+    formData.append('thumbnail', thumbnailFile)
+  }
+
   const { data } = await axiosInstance.post(
     `/sections/${encodeURIComponent(sectionId)}/items`,
-    payload
+    formData,
+    { headers: { 'Content-Type': 'multipart/form-data' } },
   )
-  return data as { id: string; sectionId: string }
+  return data as ItemDto
 }
 
 export type ItemDto = {
   id: string
+  sectionId: string 
   title: string
   description?: string
   tags?: string[]
-  thumbnailId?: string
+  thumbnailMediaId?: string
+  thumbnailUrl?: string
   itemBlocks?: {
     id: string
     type: 'text' | 'image' | 'video'
+    mediaId?: string | null 
     text?: string
     style?: any
     url?: string
@@ -50,9 +71,34 @@ export async function getItem(itemId: string) {
   return data as ItemDto
 }
 
-export type UpdateItemPayload = Partial<Pick<ItemDto, 'title' | 'description' | 'tags' | 'thumbnailId'>>
+export async function updateItem( id: string, payload: UpdateItemPayload, thumbnailFile?: File) {
+  const encodedId = encodeURIComponent(id);
 
-export async function updateItem(itemId: string, payload: UpdateItemPayload) {
-  const { data } = await axiosInstance.patch(`/items/${encodeURIComponent(itemId)}`, payload)
-  return data as ItemDto
+  if (thumbnailFile) {
+    const form = new FormData();
+
+    Object.entries(payload).forEach(([key, value]) => {
+      if (value === undefined || value === null) return;
+      if (Array.isArray(value) || typeof value === 'object') {
+        form.append(key, JSON.stringify(value));
+      } else {
+        form.append(key, String(value));
+      }
+    });
+
+    form.append('thumbnail', thumbnailFile);
+
+    const { data } = await axiosInstance.patch(
+      `/items/${encodedId}`,
+      form,
+      { headers: { 'Content-Type': 'multipart/form-data' } },
+    );
+    return data as ItemDto;
+  }
+
+  const { data } = await axiosInstance.patch(
+    `/items/${encodedId}`,
+    payload,
+  );
+  return data as ItemDto;
 }

@@ -80,7 +80,7 @@ model Profile {
 
 model Section {
   id            String    @id @default(cuid()) @map("_id")
-  ownerId     String
+  ownerId       String
   title         String
   description   String?
   coverMediaId  String?   // FK ไป Media ถ้ามีภาพปก

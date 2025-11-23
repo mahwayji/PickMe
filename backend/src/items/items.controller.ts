@@ -6,44 +6,65 @@ import {
   Param,
   Patch,
   Post,
-} from '@nestjs/common';
-import { ItemsService } from './items.service';
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common'
+import { FileInterceptor } from '@nestjs/platform-express'
+import { ItemsService } from './items.service'
 
 @Controller()
 export class ItemsController {
-  constructor(private readonly items: ItemsService) {}
+  constructor(private readonly itemsService: ItemsService) {}
 
-  // GET /api/v2/sections/:sectionId/items
+
   @Get('sections/:sectionId/items')
-  async listBySection(@Param('sectionId') sectionId: string) {
-    return this.items.listBySection(sectionId);
+  listBySection(@Param('sectionId') sectionId: string) {
+    return this.itemsService.listBySection(sectionId)
   }
 
-  // GET /api/v2/items/:id
+  /*@Delete('sections/:sectionId/items/delete')
+  async deleteAllItemBySectionId(@Param('sectionId') sectionId: string){
+    return this.itemsService.deleteAllItemBySectionId(sectionId)
+  }*/
+
   @Get('items/:id')
-  async getOne(@Param('id') id: string) {
-    return this.items.getOne(id);
+  getOne(@Param('id') id: string) {
+    return this.itemsService.getOne(id)
   }
 
-  // POST /api/v2/sections/:sectionId/items
   @Post('sections/:sectionId/items')
-  async create(
+  @UseInterceptors(FileInterceptor('thumbnail'))
+  create(
     @Param('sectionId') sectionId: string,
-    @Body() body: any,
+    @UploadedFile() thumbnail?: Express.Multer.File,
+    @Body() body?: any,
   ) {
-    return this.items.create(sectionId, body);
+
+    const tags =
+      typeof body?.tags === 'string'
+        ? JSON.parse(body.tags)
+        : body?.tags
+
+    const normalizedBody = {
+      ...body,
+      tags,
+    }
+
+    return this.itemsService.create(sectionId, normalizedBody, thumbnail)
   }
 
-  // PATCH /api/v2/items/:id
-  @Patch('items/:id')
-  async update(@Param('id') id: string, @Body() body: any) {
-    return this.items.update(id, body);
-  }
-
-  // DELETE /api/v2/items/:id
   @Delete('items/:id')
-  async remove(@Param('id') id: string) {
-    await this.items.remove(id);
-    return { ok: true };
+  remove(@Param('id') id: string) {
+    return this.itemsService.remove(id)
+  }
+
+  @Patch('items/:id')
+  @UseInterceptors(FileInterceptor('thumbnail'))
+  updateItem(
+    @Param('id') id: string,
+    @Body() body: any,
+    @UploadedFile() file?: Express.Multer.File,
+  ) {
+    return this.itemsService.update(id, body, file);
   }
 }

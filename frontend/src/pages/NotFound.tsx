@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import Nothing from '@/images/loangloang.gif'
+import Nothing from '@/images/NotFound.png'
 import { Button } from '@/components/ui/button'
 import { BASE_PATH } from '@/constants/routes'
 const NotFound = () => {
