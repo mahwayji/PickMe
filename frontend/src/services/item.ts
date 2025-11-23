@@ -44,6 +44,7 @@ export type ItemDto = {
   itemBlocks?: {
     id: string
     type: 'text' | 'image' | 'video'
+    mediaId?: string | null 
     text?: string
     style?: any
     url?: string

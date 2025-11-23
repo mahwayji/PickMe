@@ -96,65 +96,67 @@ export default function EditItemPage() {
     )
   }
 
-const addBlock = async (
-  type: Block['type'],
-  opts?: TextOptions,
-  file?: File,
-): Promise<string> => {
-  try {
-    if (type === 'text') {
-      const created = await createItemBlock(itemId, {
-        type: 'text',
-        text: '',
-        style: opts ?? {},
-      })
-      setBlocks(prev => [
-        ...prev,
-        { id: created.id, type: 'text', content: '', opts },
-      ])
-      return created.id
-    }
-
-    if (type === 'image' || type === 'video') {
-      if (!file) throw new Error('File is required for media block')
-
-      const created = await uploadItemBlock(itemId, file)
-
-      if (created.type === 'image') {
+  const addBlock = async (
+    type: Block['type'],
+    opts?: TextOptions,
+    file?: File,
+  ): Promise<string> => {
+    try {
+      if (type === 'text') {
+        const created = await createItemBlock(itemId, {
+          type: 'text',
+          text: '',
+          style: opts ?? {},
+        })
         setBlocks(prev => [
           ...prev,
-          {
-            id: created.id,
-            type: 'image',
-            url: created.url,
-            caption: created.caption ?? file.name,
-          },
+          { id: created.id, type: 'text', content: '', opts },
         ])
-      } else if (created.type === 'video') {
-        setBlocks(prev => [
-          ...prev,
-          {
-            id: created.id,
-            type: 'video',
-            url: created.url,
-            caption: created.caption ?? file.name,
-          },
-        ])
-      } else {
-        console.error('Unexpected block type from upload', created)
+        return created.id
       }
 
-      return created.id
-    }
+      if (type === 'image' || type === 'video') {
+        if (!file) throw new Error('File is required for media block')
 
-    throw new Error('Unsupported block type in addBlock()')
-  } catch (e: any) {
-    toast.error(
-      e?.response?.data?.message || e?.message || 'Fail to Create Block',
-    )
-    throw e
+        const created = await uploadItemBlock(itemId, file)
+
+        if (created.type === 'image') {
+          setBlocks(prev => [
+            ...prev,
+            {
+              id: created.id,
+              type: 'image',
+              mediaId: created.mediaId,
+              url: created.url,
+              caption: created.caption ?? file.name,
+            },
+          ])
+        } else if (created.type === 'video') {
+          setBlocks(prev => [
+            ...prev,
+            {
+              id: created.id,
+              type: 'video',
+              mediaId: created.mediaId,
+              url: created.url,
+              caption: created.caption ?? file.name,
+            },
+          ])
+        } else {
+          console.error('Unexpected block type from upload', created)
+        }
+
+        return created.id
+      }
+
+      throw new Error('Unsupported block type in addBlock()')
+    } catch (e: any) {
+      toast.error(
+        e?.response?.data?.message || e?.message || 'Fail to Create Block',
+      )
+      throw e
+    }
   }
-}
 
   // autosave: text & style
   const debouncedUpdateText = useMemo(
@@ -218,55 +220,57 @@ const addBlock = async (
   }
 
   return (
-    <div className="flex h-screen bg-background text-foreground">
+    <div className="flex h-screen bg-background text-foreground ">
       {/* Toolbar */}
-      <InsertBlockToolbar
-        selectedBlockId={selectedBlockId}
-        externalView={
-          selectedBlock?.type === 'text'
-            ? 'text'
-            : selectedBlock?.type === 'image'
-            ? 'menu'
-            : selectedBlock?.type === 'video'
-            ? 'menu'
-            : 'menu'
-        }
-        initialText={selectedBlock?.type === 'text' ? selectedBlock.opts ?? null : null}
-        onInsertText={async (opts) => {
-          const id = await addBlock('text', opts)
-          setSelectedBlockId(id)
-        }}
-        onInsertImage={async (file) => {
-          const id = await addBlock('image', undefined, file)
-          setSelectedBlockId(id)
-        }}
-        onInsertVideo={async (file) => {
-          const id = await addBlock('video', undefined, file)
-          setSelectedBlockId(id)
-        }}
-        onLiveChangeText={(opts) => {
-          if (!selectedBlockId) return
+      <div className="hidden 2xl:block">
+        <InsertBlockToolbar
+          selectedBlockId={selectedBlockId}
+          externalView={
+            selectedBlock?.type === 'text'
+              ? 'text'
+              : selectedBlock?.type === 'image'
+              ? 'menu'
+              : selectedBlock?.type === 'video'
+              ? 'menu'
+              : 'menu'
+          }
+          initialText={selectedBlock?.type === 'text' ? selectedBlock.opts ?? null : null}
+          onInsertText={async (opts) => {
+            const id = await addBlock('text', opts)
+            setSelectedBlockId(id)
+          }}
+          onInsertImage={async (file) => {
+            const id = await addBlock('image', undefined, file)
+            setSelectedBlockId(id)
+          }}
+          onInsertVideo={async (file) => {
+            const id = await addBlock('video', undefined, file)
+            setSelectedBlockId(id)
+          }}
+          onLiveChangeText={(opts) => {
+            if (!selectedBlockId) return
 
-          setBlocks(prev => {
-            let currentText = ''
-            let mergedStyle: TextOptions | undefined
+            setBlocks(prev => {
+              let currentText = ''
+              let mergedStyle: TextOptions | undefined
 
-            const next = prev.map(b => {
-              if (b.id !== selectedBlockId || b.type !== 'text') return b
-              mergedStyle = { ...(b.opts ?? {}), ...(opts ?? {}) }
-              currentText = b.content
-              return { ...b, opts: mergedStyle }
+              const next = prev.map(b => {
+                if (b.id !== selectedBlockId || b.type !== 'text') return b
+                mergedStyle = { ...(b.opts ?? {}), ...(opts ?? {}) }
+                currentText = b.content
+                return { ...b, opts: mergedStyle }
+              })
+
+              if (mergedStyle) {
+                debouncedUpdateStyle(selectedBlockId, currentText, mergedStyle)
+              }
+
+              return next
             })
-
-            if (mergedStyle) {
-              debouncedUpdateStyle(selectedBlockId, currentText, mergedStyle)
-            }
-
-            return next
-          })
-        }}
-        onCloseRequested={() => setSelectedBlockId(null)}
-      />
+          }}
+          onCloseRequested={() => setSelectedBlockId(null)}
+        />
+      </div>
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto">
