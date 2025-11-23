@@ -2,11 +2,13 @@ import type { ItemBlock } from "./itemBlock";
 
 export type Item = {
     id: string,
-    sectionId: string,
+    username: string,
+    sectionTitle: string,
+    profileMediaId: string,
     title: string,
     description: string,
     tags: string[],
-    thumbnail: string,
+    thumbnailId: string,
     blocks: ItemBlock[],
     orderIndex: number,
     createdAt: Date,

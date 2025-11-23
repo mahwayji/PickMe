@@ -1,13 +1,24 @@
 import { useEffect, useState, type ImgHTMLAttributes } from "react";
 import { axiosInstance } from "@/lib/axios";
+import ImageNotFound from '@/images/ImageNotFound.png'
+import VideoNotFound from '@/images/VideoNotFound.mp4'
 
-async function getUrlById(id: string) {
-  const res = await axiosInstance.get(`media/${id}`);
-  return res.data as string;
+
+async function getUrlById(id: string | undefined, type: String) {
+  try {
+    const res = await axiosInstance.get(`media/${id}`);
+    return res.data as string;
+  } catch (error){
+    if(type == 'image')
+      return ImageNotFound
+    else if (type == 'video')
+      return VideoNotFound
+    else return ''
+  }
 }
 
 type MediaImageProps = {
-  mediaId: string;
+  mediaId: string | undefined;
 } & ImgHTMLAttributes<HTMLImageElement>;
 
 
@@ -15,9 +26,26 @@ export function MediaImage({ mediaId, ...props }: MediaImageProps) {
   const [url, setUrl] = useState("");
 
   useEffect(() => {
-    if (!mediaId) return;
-    getUrlById(mediaId).then(setUrl);
-  }, [mediaId]);
+    getUrlById(mediaId, 'image').then(setUrl);
+
+  }, []);
 
   return <img src={url} {...props} />;
+}
+
+type MediaVideoProps = {
+  mediaId: string | undefined;
+} & ImgHTMLAttributes<HTMLVideoElement>;
+
+export function MediaVideo({mediaId, ...props}: MediaVideoProps){
+  const [url, setUrl] = useState("")
+
+  useEffect(() => {
+    getUrlById(mediaId, 'video').then(setUrl);
+  }, [mediaId]);
+
+  if (url === "") 
+    setUrl(ImageNotFound)
+  return <video src={url} {...props} controls/>;
+  
 }

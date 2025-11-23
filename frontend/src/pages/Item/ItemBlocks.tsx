@@ -9,7 +9,8 @@ type Props = {
 }
 
 const ItemBlocks: React.FC<Props> = ({ items }: Props) => {
-    
+    console.log(items)
+    if(!items) return <></>
     return (
         <div className = 'p-2'>
             {(items).map((block) =>{

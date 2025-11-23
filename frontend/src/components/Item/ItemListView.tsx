@@ -1,6 +1,5 @@
 import { Card } from '@/components/ui/card'
 import { Plus } from 'lucide-react'
-import section404noimage from '@/images/section404noimg.gif'
 import type { Item } from '@/types/item'
 import { Trash2 } from 'lucide-react';
 import { toast } from 'sonner'
@@ -9,6 +8,7 @@ import { ConfirmDeleteDialogueItem } from './components/ConfirmDeleteDialogueIte
 import React from 'react'
 import { ITEM_CREATE_PATH, ITEM_EDIT_PATH } from '@/constants/routes';
 import { Link, useParams } from 'react-router-dom'
+import { MediaImage } from '../utils/MediaToImage';
 
 type Props = {
     itemData: Item[]
@@ -62,8 +62,8 @@ export const ItemListView: React.FC<Props> = ({ itemData,ownerPageId,userId, isL
                         />
                     </div>   )}
                     <Link to={ITEM_EDIT_PATH.replace(':itemId', item ? item.id : '404')}>
-                    <img
-                            src={ section404noimage} 
+                    <MediaImage
+                            mediaId={item?.thumbnailId} 
                             className="w-full h-full object-cover"
                         />   
                         
