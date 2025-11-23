@@ -46,6 +46,7 @@ export type BlockDto =
   | {
       id: string
       type: 'image'
+      mediaId?: string
       url: string
       alt?: string
       caption?: string
@@ -57,6 +58,7 @@ export type BlockDto =
   | {
       id: string
       type: 'video'
+      mediaId?: string
       url: string
       provider?: string
       caption?: string

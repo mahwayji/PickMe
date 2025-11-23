@@ -63,6 +63,7 @@ export default function EditItemPage() {
             return {
               id: b.id,
               type: 'image',
+              mediaId: b.mediaId,
               url: b.url,
               caption: b.caption,
             }
@@ -70,6 +71,7 @@ export default function EditItemPage() {
           return {
             id: b.id,
             type: 'video',
+            mediaId: b.mediaId,
             url: b.url,
             caption: b.caption,
           }

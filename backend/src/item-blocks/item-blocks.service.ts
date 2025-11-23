@@ -71,6 +71,7 @@ export class ItemBlocksService {
                 return {
                     id: b.id,
                     type: 'image' as const,
+                    mediaId: b.mediaId ?? undefined,
                     url,
                     alt: c.alt,
                     caption: c.caption,
@@ -85,6 +86,7 @@ export class ItemBlocksService {
                 return {
                     id: b.id,
                     type: 'video' as const,
+                    mediaId: b.mediaId ?? undefined,
                     url,
                     provider: c.provider ?? 'upload',
                     caption: c.caption,
