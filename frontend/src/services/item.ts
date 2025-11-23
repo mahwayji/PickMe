@@ -39,11 +39,12 @@ export type ItemDto = {
   title: string
   description?: string
   tags?: string[]
-  thumbnailId?: string
-  thumbnailUrl?: string 
+  thumbnailMediaId?: string
+  thumbnailUrl?: string
   itemBlocks?: {
     id: string
     type: 'text' | 'image' | 'video'
+    mediaId?: string | null 
     text?: string
     style?: any
     url?: string

@@ -50,6 +50,7 @@ export class ItemsService {
           return {
             id: b.id,
             type: 'image',
+            mediaId: b.mediaId ?? undefined,
             url,
             alt: c.alt,
             caption: c.caption,
@@ -63,6 +64,7 @@ export class ItemsService {
           return {
             id: b.id,
             type: 'video',
+            mediaId: b.mediaId ?? undefined,
             url,
             provider: c.provider ?? 'upload',
             caption: c.caption,
@@ -82,7 +84,8 @@ export class ItemsService {
     const sectionTitle: string | undefined = item.section?.title ?? undefined;
     const profileMediaId: string | undefined = item.section?.user?.profile?.profileMediaId ?? undefined;
     const username: string | undefined = item.section?.user?.username ?? undefined;
-    const thumbnailUrl: string | undefined = item.thumbnailMedia?.url ?? undefined;
+    const thumbnailMediaId = item.thumbnailMediaId ?? undefined;
+    const thumbnailUrl = item.thumbnailMedia?.url ?? undefined;
 
     return {
       id: item.id,
@@ -90,7 +93,7 @@ export class ItemsService {
       title: item.title,
       description: item.description ?? undefined,
       tags,
-      thumbnailId: item.thumbnailMediaId ?? undefined,
+      thumbnailMediaId,
       thumbnailUrl,
       itemBlocks: itemBlocks.length ? itemBlocks : undefined,
       createdAt: toIso(item.createdAt),
