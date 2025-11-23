@@ -1,7 +1,6 @@
 import { Card} from '@/components/ui/card'
 import { Wrench } from 'lucide-react'
 import { Plus } from 'lucide-react'
-import section404noimage from '@/images/section404noimg.gif'
 import type { Section } from '@/types/section'
 import { toast } from 'sonner'
 import { MediaImage } from '../utils/MediaToImage'
@@ -50,16 +49,11 @@ export const SectionView: React.FC<Props> = ({ sectionData, isLoading,ownerPageI
                     </div>)}
 
                     <Link to={SECTION_PATH.replace(':username', ownerPageUsername ? ownerPageUsername : '404').replace(':sectionId', section.id ? section.id : '404')}>
-                        {section.coverMediaId ? 
-                            (<MediaImage mediaId= {section.coverMediaId} 
-                                className="w-full h-full object-cover"/>)
-                            :
-                            (<img
-                                src= {section404noimage} 
+                            <MediaImage 
+                                mediaId= {section.coverMediaId} 
                                 className="w-full h-full object-cover"
-                            />   )
-
-                            }  
+                            />
+                         
                     </Link>
 
                 </Card>
