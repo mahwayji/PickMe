@@ -1,7 +1,9 @@
 import { axiosInstance } from "@/lib/axios";
 import type { UserProfile } from "@/types/userProfile";
+import { User } from "lucide-react";
 import React, { useEffect } from "react";
 import { toast } from "sonner";
+import { MediaImage } from '@/components/utils/MediaToImage'
 
 
 type ProfileSummaryCardProps = {
@@ -11,9 +13,7 @@ type ProfileSummaryCardProps = {
   location: string;
 };
 
-export const ProfileSummaryCard: React.FC<ProfileSummaryCardProps> = ({
-  picture,
-}) => {
+export const ProfileSummaryCard: React.FC<ProfileSummaryCardProps> = ({}) => {
   const [data, setData] = React.useState<UserProfile | null>(null);
   const [username, setUsername] = React.useState<string>('');
 
@@ -38,12 +38,18 @@ export const ProfileSummaryCard: React.FC<ProfileSummaryCardProps> = ({
   
 
   return (
-    <div className="rounded-2xl border border-zinc-400 p-4 shadow-sm">
-      <img
-        src={picture}
-        alt={`${data?.username}'s profile`}
-        className="h-20 w-20 rounded-full object-cover mx-auto"
-      />
+    <div className="rounded-2xl border border-zinc-400 p-4 shadow-sm flex flex-col items-center text-center">
+      {data?.profileMediaId ? 
+        (<MediaImage
+          mediaId = {data.profileMediaId}
+          className="w-28 h-28 rounded-full flex items-center justify-center shadow-md"
+        />) :
+        (
+          <div className="w-28 h-28 rounded-full flex items-center justify-center ring-background shadow-md bg-gray-200">
+          <User size={64} className="text-gray-500" />
+          </div>
+        )
+      }
       <h2 className="text-lg font-semibold ">
         {data?.username}
       </h2>
