@@ -3,9 +3,9 @@ import SideBar from "@/components/utils/SideBar";
 import { ThemeToggle } from "@/components/utils/ThemeTogglebutton";
 import ProfileSummaryCard from "@/components/Admin/User/components/Home/ProfileSummaryCard";
 import TagPanel from "@/components/Admin/User/components/Tags/TagPanel";
-//import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { axiosInstance } from "@/lib/axios";
-//import axios from "axios";
+import axios from "axios";
 
 // แท็กทั้งหมดที่อยากโชว์ใน TagPanel
 /*const popularTags = [
@@ -66,9 +66,9 @@ const Home: React.FC = () => {
     setActiveTag(t);
   };
 
-  /*const handleCreateTag = () => {
+  const handleCreateTag = () => {
     console.log("Create Tag clicked");
-    const newTag = { name: "ML" };
+    const newTag = { name: "SteelBallRun" };
             const createTag = async () => {
           try {
             const response = await axiosInstance.post('/tag/create', newTag);
@@ -97,7 +97,7 @@ const Home: React.FC = () => {
         
 
     createTag();
-  };*/
+  };
 
   const fetchTags = async () => {
     try {
@@ -192,14 +192,14 @@ const Home: React.FC = () => {
               <div className="sticky top-16">
                 <TagPanel
                   title="Tags"
-                  popularTags={tags}
-                  newTags={tags}
+                  popularTags={tags.slice(0,7)}
+                  newTags={tags.slice(0,7)}
                   activeTag={activeTag}
                   onSelectTag={handleSelectTag}
                 />
-                {/* <Button className="mt-4 w-full" onClick={handleCreateTag}>
+                 <Button className="mt-4 w-full" onClick={handleCreateTag}>
                   Create Tag
-                </Button> */}
+                </Button> 
               </div>
             </div>
           </div>
