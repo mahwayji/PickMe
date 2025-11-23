@@ -9,7 +9,7 @@ import Loading from '../Loading';
 
 const Home : React.FC= () => {
     const [feed, setFeed] = useState< Item[]>([]);
-    const [tag, setTag] = useState('')
+    const [tag, _setTag] = useState('')
     const [loading, setLoading] = useState<boolean>(true)
     const getFeed = useCallback(async () => {
         try {
