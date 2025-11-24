@@ -42,12 +42,12 @@ const ItemView : React.FC= () => {
     getItem()
   }, [itemId])
 
+  console.log(data)
   if(loading) return ( <Loading />)
 
   else if (!data) return (<NotFound />)
-  
     return (
-    <div>
+    <div className = 'ml-40'>
       <SideBar />
       <div className = 'p-4 h-screen overflow-auto'>
         <Card className = 'flex-col'>
@@ -57,18 +57,15 @@ const ItemView : React.FC= () => {
               {data.sectionTitle}
             </CardTitle>
             <div className = 'flex flex-row justify-between'>
-            <div className = 'flex items-center'>
-
-                  <Link to= {PROFILE_INFO_PATH} >
-                          <MediaImage
-                            mediaId = {data?.profileMediaId}
-                            className="w-10 h-10 rounded-full flex items-center justify-center ring-2 shadow-md"
-                          />
-                  </Link>
+                <Link to= {PROFILE_INFO_PATH.replace(":username", data.username)} className = 'flex items-center'>
+                  <MediaImage
+                    mediaId = {data?.profileMediaId}
+                    className="w-10 h-10 rounded-full flex items-center justify-center ring-2 shadow-md"
+                  />
                   <CardTitle className = 'text-sm font-semibold px-2'>
                     {data.username}
                   </CardTitle>
-              </div>
+                </Link>
               <CardFooter>
                 <Button variant='outline' className='bg-background'>
                   Contact Me
@@ -76,12 +73,17 @@ const ItemView : React.FC= () => {
               </CardFooter>
             </div>
           </CardHeader>
-        <Separator className="bg-zinc-400 my-4 "/>
-        <CardContent>
-          
-          <CardTitle className = 'text-lg'>{data?.title}</CardTitle>
-          <ItemBlocks items={data.blocks} />
-        </CardContent>
+        
+          <Separator className="bg-zinc-400 my-4 "/>
+          <CardContent>
+            <MediaImage mediaId = {data.thumbnailMediaId} className = 'max-w-[400px] max-h-[400px] mx-auto'/>  
+            <CardTitle className = 'text-3xl'>{data?.title}</CardTitle>
+            <CardTitle className = 'text-lg front-light'>{data?.description}</CardTitle>
+
+            <Separator className="bg-zinc-400 my-4 "/>
+            
+            <ItemBlocks items={data.itemBlocks} />
+          </CardContent>
         </ Card>
       </div>
     </div>

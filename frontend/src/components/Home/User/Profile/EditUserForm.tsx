@@ -56,7 +56,6 @@ const onSubmit = async (values: z.infer<typeof formScheme>) => {
         formData.append("profileImage", values.profileImage);
     }
 
-    console.log(formData)
     try {
         const res = await axiosInstance.patch(
             `profile/${data.id}`,
@@ -66,7 +65,6 @@ const onSubmit = async (values: z.infer<typeof formScheme>) => {
                 },
             })
         setData(res.data)
-        toast("Update profile successfully!")
     } catch(error) {
         if(isAxiosError(error)) {
             const errorMessage = error.response?.data?.message || "Something went wrong"

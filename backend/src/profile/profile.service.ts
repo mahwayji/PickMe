@@ -71,12 +71,12 @@ export class ProfileService {
         if(!media){
             throw new Error("Can't update profile")
         }
+        
         await this.prisma.profile.update({
             where: {userId: id},
             data: {
                 profileMediaId: media.id
             }
         })
-
     }
 }

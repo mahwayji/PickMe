@@ -6,10 +6,10 @@ import type { Section } from '@/types/section';
 import { useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Separator } from '@/components/ui/separator';
-import { EditUserForm } from '@/components/Admin/User/components/User/Profile/EditUserForm';
+import { EditUserForm } from '@/components/Home/User/Profile/EditUserForm';
 import type { UserProfile } from '@/types/userProfile';
 import NotFound from '../NotFound';
-import ProfileHeader from '@/components/Admin/User/components/User/Profile/ProfileHeader';
+import ProfileHeader from '@/components/Home/User/Profile/ProfileHeader';
 import Loading from '../Loading';
 import { CreateSectionForm } from '@/components/Section/components/Form/CreateSectionForm';
 import { EditSectionForm } from '@/components/Section/components/Form/EditSectionForm';
@@ -74,9 +74,9 @@ const Profile: React.FC = () => {
     if (username) fetchProfile();
     if (username) fetchSection();
     setIsLoading(false);
-  }, [username, isLoading]);
+  }, []);
   
-    if(data === null) return(
+  if(data === null) return(
     <NotFound />
   )
 
@@ -86,7 +86,7 @@ const Profile: React.FC = () => {
   else
   
   return (
-    <div className="flex flex-row text-foreground min-h-screen" >
+    <div className="flex flex-row text-foreground min-h-screen ml-[200px]" >
       {/* Sidebar */}
       <SideBar />
       <div className="flex flex-col items-start w-full overflow-y-auto">

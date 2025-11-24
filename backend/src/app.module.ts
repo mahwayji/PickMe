@@ -9,6 +9,7 @@ import { ProfileModule } from './profile/profile.module';
 import { SectionModule } from './section/section.module';
 import { FeedModule } from './feed/feed.module';
 import { MediaModule } from './media/media.module';
+import { TagModule } from './Tag/tag.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { MediaModule } from './media/media.module';
     SectionModule,
     FeedModule,
     MediaModule,
+    TagModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -6,7 +6,7 @@ import { toast } from 'sonner'
 import { axiosInstance } from '@/lib/axios'
 import { ConfirmDeleteDialogueItem } from './components/ConfirmDeleteDialogueItem'
 import React from 'react'
-import { ITEM_CREATE_PATH, ITEM_EDIT_PATH } from '@/constants/routes';
+import { ITEM_CREATE_PATH, ITEM_EDIT_PATH, ITEM_INFO_PATH } from '@/constants/routes';
 import { Link, useParams } from 'react-router-dom'
 import { MediaImage } from '../utils/MediaToImage';
 
@@ -24,7 +24,7 @@ export const ItemListView: React.FC<Props> = ({ itemData,ownerPageId,userId, isL
     const [selectedItemId, setSelectedItemId] = React.useState<string|null >(null);
 
     const {username , sectionId} = useParams(); 
-
+    const path = (userId === ownerPageId) ? ITEM_EDIT_PATH : ITEM_INFO_PATH
     const onDelete = async () => {
             toast.success('Deleting section...')
             setLoading(true);
@@ -60,13 +60,13 @@ export const ItemListView: React.FC<Props> = ({ itemData,ownerPageId,userId, isL
                                 setIsConfirmOpen(true)
                             }}
                         />
-                    </div>   )}
-                    <Link to={ITEM_EDIT_PATH.replace(':itemId', item ? item.id : '404')}>
-                    <MediaImage
-                            mediaId={item?.thumbnailId} 
-                            className="w-full h-full object-cover"
-                        />   
-                        
+                    </div> )}
+                    
+                    <Link to={path.replace(':itemId', item.id)}>
+                        <MediaImage
+                                mediaId={item?.thumbnailMediaId} 
+                                className="w-full h-full object-cover"
+                            />              
                     </Link>
                 </Card>
                 

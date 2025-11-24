@@ -19,23 +19,23 @@ const ItemMedia = ({feed}: Props) => {
       </div>
     )
     return (
-        <div className = 'flex flex-col gap-4 min-h-0 h-screen w-[50%] overflow-y-auto'>
+        <div className = 'flex flex-col gap-4 min-h-0 h-screen'>
             {feed.map((item) => {
                 return(     
                     <Link to = {ITEM_INFO_PATH.replace(':itemId', item.id)}>
                         <Card className = 'flex-col justify-center'>
                             <CardHeader className = 'flex-row justify-between'>
-                                <div className = 'flex items-center'>
-                                    <Link to= {PROFILE_INFO_PATH} >
-                                            <MediaImage
-                                            mediaId = {item.profileMediaId}
-                                            className="w-10 h-10 rounded-full flex items-center justify-center ring-1 shadow-md"
-                                            />
-                                    </Link>
-                                    <CardTitle className = 'text-sm font-semibold px-2'>
-                                      {item.username}
-                                    </CardTitle>
-                                </div>
+                                <Link 
+                                to= {PROFILE_INFO_PATH.replace(':username', item.username)}
+                                className = 'flex items-center'>
+                                  <MediaImage
+                                  mediaId = {item.profileMediaId}
+                                  className="w-10 h-10 rounded-full flex items-center justify-center ring-1 shadow-md"
+                                  />
+                                  <CardTitle className = 'text-sm font-semibold px-2'>
+                                    {item.username}
+                                  </CardTitle>
+                                </Link>
                                 <CardFooter>
                                   <Button variant='outline' className='bg-background'>
                                     Contact Me
@@ -43,7 +43,7 @@ const ItemMedia = ({feed}: Props) => {
                                 </CardFooter>
                             </CardHeader>
 
-                            <MediaImage mediaId = {item.thumbnailId} alt = 'Loading' className = 'block mx-auto max-h-[400px] w-auto'/>                           
+                            <MediaImage mediaId = {item.thumbnailMediaId} alt = 'Loading' className = 'block mx-auto max-h-[400px] w-auto'/>                           
                             <br></br>
                             <CardContent className = 'text-left p-4'>
                               <h2 className = 'font-bold'>

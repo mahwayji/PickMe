@@ -6,15 +6,19 @@ import type { Item } from '@/types/item';
 import { isAxiosError } from 'axios';
 import { toast } from 'sonner';
 import Loading from '../Loading';
+import ProfileSummaryCard from '@/components/Home/Home/ProfileSummaryCard';
+import TagPanel from '@/components/Home/Tags/TagPanel';
 
 const Home : React.FC= () => {
     const [feed, setFeed] = useState< Item[]>([]);
-    const [tag, _setTag] = useState('')
     const [loading, setLoading] = useState<boolean>(true)
+    const [activeTag, setActiveTag] = React.useState<string>('');
+    const [tags, setTags] = React.useState<string[]>([]);
+
     const getFeed = useCallback(async () => {
         try {
-            if (tag !== ''){
-              const response =  await axiosInstance.get(`/feed/${tag}`)
+            if (activeTag !== ''){
+              const response =  await axiosInstance.get(`/feed/${activeTag}`)
               setFeed(response.data)
             }
             else{
@@ -32,21 +36,61 @@ const Home : React.FC= () => {
         finally {
             setLoading(false)
         }
-    }, [])
+    }, [activeTag])
+
+
+    const handleSelectTag = (t: string) => {
+      setActiveTag(t)
+    };
+
+    const fetchTags = async () => {
+      try {
+        const response = await axiosInstance.get('/tag');
+        setTags(response.data.map((tag: { name: string }) => tag.name));
+      } catch (error) {
+        console.error('Error fetching tags:', error);
+      }
+  };
 
     useEffect(() => {
+        fetchTags()
         getFeed()
-    },[tag])
+        console.log(feed)
+    }, [activeTag])
     
   if(loading) return (<Loading />)
     
   return (
     <div >
-        <SideBar />
-        <div className='flex flex-row items-center justify-around p-4'>
-          <ItemMedia feed = {feed}/>
-        </div >
+        <div className = 'ml-40 w-full  overflow-y-auto'>
+          <SideBar />
+          <div className='flex flex-row  justify-around gap-4'>
+            {/* Left column: sticky profile summary */}
+            <div className="w-[25%]">
+              <div className="sticky top-16">
+                <ProfileSummaryCard />
+              </div>
+            </div>
 
+            <div className = 'w-[50%]'>
+                <ItemMedia feed = {feed}/>
+            </div>
+
+            <div className="w-[25%]">
+              <div className="sticky top-16">
+                <TagPanel
+                  title="Tags"
+                  popularTags={tags.slice(0,7)}
+                  newTags={tags.slice(0,7)}
+                  activeTag={activeTag}
+                  onSelectTag={handleSelectTag}
+                />
+              </div>
+          </div>
+            <div className = 'right-0'>
+            </div>
+          </div >
+        </div>
     </div>
   )
 }
