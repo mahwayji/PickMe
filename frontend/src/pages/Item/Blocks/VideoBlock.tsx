@@ -1,5 +1,5 @@
-import { MediaVideo } from '@/components/utils/MediaToImage'
 import type { ItemBlock } from '@/types/itemBlock'
+import VideoNotFound from '@/images/VideoNotFound.mp4'
 
 type Props = {
     block: ItemBlock
@@ -7,9 +7,10 @@ type Props = {
 const VideoBlock = ({block}: Props) => {
     if(block.type !== 'video') return (<></>)
     
+    const url = block?.url ? (block.url) : VideoNotFound;
     return (
         <div className = 'p-2'>
-            <MediaVideo mediaId = {block.url} width = {block.width} height = {block.height} className = 'block mx-auto' />
+            <video src = {url} width = {block.width} height = {block.height} className = 'block mx-auto' controls/>
         </div>
     )
 }
