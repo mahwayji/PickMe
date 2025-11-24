@@ -50,7 +50,7 @@ const ItemView : React.FC= () => {
     <div className = 'ml-40'>
       <SideBar />
       <div className = 'p-4 h-screen overflow-auto'>
-        <Card className = 'flex-col'>
+        <Card className = 'flex-col border-zinc-400'>
           
           <CardHeader>
             <CardTitle className = 'text-2xl text-left'>
@@ -60,14 +60,14 @@ const ItemView : React.FC= () => {
                 <Link to= {PROFILE_INFO_PATH.replace(":username", data.username)} className = 'flex items-center'>
                   <MediaImage
                     mediaId = {data?.profileMediaId}
-                    className="w-10 h-10 rounded-full flex items-center justify-center ring-2 shadow-md"
+                    className="w-10 h-10 rounded-full flex items-center justify-center shadow-md"
                   />
                   <CardTitle className = 'text-sm font-semibold px-2'>
                     {data.username}
                   </CardTitle>
                 </Link>
               <CardFooter>
-                <Button variant='outline' className='bg-background'>
+                <Button variant='outline' className='bg-background border-zinc-400'>
                   Contact Me
                 </Button>
               </CardFooter>
