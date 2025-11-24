@@ -220,9 +220,9 @@ export default function EditItemPage() {
   }
 
   return (
-    <div className="flex h-screen bg-background text-foreground ">
+    <div className="ml-40 flex h-screen bg-background text-foreground ">
       {/* Toolbar */}
-      <div className="hidden 2xl:block">
+      <div>
         <InsertBlockToolbar
           selectedBlockId={selectedBlockId}
           externalView={

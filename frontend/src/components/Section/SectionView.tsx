@@ -29,7 +29,6 @@ export const SectionView: React.FC<Props> = ({ sectionData, isLoading,ownerPageI
         setOpenCreateSectionForm(true);
     }
 
-    console.log(sectionData)
     return (
         
         (isLoading) ? <div> Loading... </div> :

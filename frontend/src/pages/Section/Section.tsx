@@ -88,19 +88,21 @@ const Section: React.FC = () => {
                 /*Name card*/
                 <div className='flex justify-between pr-4 pl-4'>  
                     
-                    <div className="font-light text-xl text-black-1000 flex items-center gap-5">
-                        <Link className='font-light text-xl text-black-1000 flex items-center gap-5' to={PROFILE_INFO_PATH.replace(':username', username ? username : '404')}>
-                        { 
-                        <MediaImage
-                            mediaId= {data?.profileMediaId}
-                            className="w-[45px] h-[45px] object-cover rounded-full"
-                        /> } 
-                            
-                            {data? data.firstName: 'Anonymous'} {data? data.lastName: 'King'}
+                    <div className="flex flex-row justify-between">
+                        <Link to={PROFILE_INFO_PATH.replace(':username', username ? username : '404')} className = 'flex items-center'>
+                        
+                            <MediaImage
+                                mediaId= {data?.profileMediaId}
+                                className="w-10 h-10 rounded-full flex items-center justify-center ring-2 shadow-md"
+                            />
+                                
+                            <div className = 'text-sm font-semibold px-2'>
+                                {data? data.firstName: 'Anonymous'} {data? data.lastName: 'King'}
+                            </div>
                         </Link>
                     </div>
                     <div>
-                        <Button className="border font-light rounded-3xl bg-black text-white px-4 py-2 cursor-pointer">
+                        <Button className="border font-light rounded-3xl px-4 py-2 cursor-pointer">
                             <Link to={PROFILE_INFO_PATH.replace(':username', username ? username : '404')}>
                                 CONTACT ME
                             </Link>

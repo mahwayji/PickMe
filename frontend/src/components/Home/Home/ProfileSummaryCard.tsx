@@ -41,10 +41,10 @@ export const ProfileSummaryCard: React.FC = ({}) => {
         {data?.profileMediaId ?
           (<MediaImage
             mediaId = {data.profileMediaId}
-            className="w-28 h-28 rounded-full flex items-center justify-center shadow-md"
+            className="w-28 h-28 rounded-full flex items-center justify-center shadow-md mx-auto"
           />) :
           (
-            <div className="w-28 h-28 rounded-full flex items-center justify-center ring-background shadow-md bg-gray-200">
+            <div className="w-28 h-28 rounded-full flex items-center justify-center ring-background mx-auto shadow-md bg-gray-200">
             <User size={64} className="text-gray-500" />
             </div>
           )

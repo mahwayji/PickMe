@@ -145,7 +145,7 @@ export default function InsertBlockToolbar({
   }
 
   return (
-    <aside className="fixed left-0 top-0 z-40 h-screen w-[340px] border-r border-border bg-background px-6 pt-6 text-foreground">
+    <aside className="fixed left-0 top-0 z-40 h-screen max-w-[300px] w-[15%] border-r border-border bg-background px-6 pt-6 text-foreground">
       {view === 'menu' && (
         <div className="space-y-6">
           <div className="text-sm font-medium">Insert Block</div>

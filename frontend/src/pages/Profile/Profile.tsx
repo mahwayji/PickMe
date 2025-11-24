@@ -74,9 +74,9 @@ const Profile: React.FC = () => {
     if (username) fetchProfile();
     if (username) fetchSection();
     setIsLoading(false);
-  }, [username, isLoading]);
+  }, []);
   
-    if(data === null) return(
+  if(data === null) return(
     <NotFound />
   )
 
