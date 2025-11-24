@@ -5,7 +5,6 @@ import { axiosInstance } from '@/lib/axios';
 import type { Section } from '@/types/section';
 import { useParams } from 'react-router-dom';
 import { toast } from 'sonner';
-import { Separator } from '@/components/ui/separator';
 import { EditUserForm } from '@/components/Home/User/Profile/EditUserForm';
 import type { UserProfile } from '@/types/userProfile';
 import NotFound from '../NotFound';
@@ -74,7 +73,7 @@ const Profile: React.FC = () => {
     if (username) fetchProfile();
     if (username) fetchSection();
     setIsLoading(false);
-  }, []);
+  }, [data]);
   
   if(data === null) return(
     <NotFound />
@@ -95,8 +94,7 @@ const Profile: React.FC = () => {
           isOwner = {(ownerPageId === userId)}
           handleEditUser={handleEditUser}
         />
-        <Separator className='py-2'/>
-
+      <div className ='py-4'>
         {isCreateSectionFormOpen && userId &&(
         <CreateSectionForm 
           open= {isCreateSectionFormOpen} 
@@ -125,7 +123,7 @@ const Profile: React.FC = () => {
           setOpenCreateSectionForm={setIsCreateSectionFormOpen} 
           setOpenEditSectionForm={setIsEditSectionFormOpen} 
           setSectionIdToEdit={setSectionIdToEdit}/> 
-
+      </div>
       </div>
       <EditUserForm
         open = {openEditUserDialog}

@@ -23,21 +23,21 @@ const ItemMedia = ({feed}: Props) => {
             {feed.map((item) => {
                 return(     
                     <Link to = {ITEM_INFO_PATH.replace(':itemId', item.id)}>
-                        <Card className = 'flex-col justify-center'>
+                        <Card className = 'flex-col justify-center border-zinc-400'>
                             <CardHeader className = 'flex-row justify-between'>
                                 <Link 
                                 to= {PROFILE_INFO_PATH.replace(':username', item.username)}
                                 className = 'flex items-center'>
                                   <MediaImage
                                   mediaId = {item.profileMediaId}
-                                  className="w-10 h-10 rounded-full flex items-center justify-center ring-1 shadow-md"
+                                  className="w-10 h-10 rounded-full flex items-center justify-center shadow-md"
                                   />
                                   <CardTitle className = 'text-sm font-semibold px-2'>
                                     {item.username}
                                   </CardTitle>
                                 </Link>
                                 <CardFooter>
-                                  <Button variant='outline' className='bg-background'>
+                                  <Button variant='outline' className='bg-background border-zinc-400'>
                                     Contact Me
                                   </Button>
                                 </CardFooter>
