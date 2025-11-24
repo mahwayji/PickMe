@@ -5,7 +5,7 @@ export type TagPanelProps = {
   popularTags: string[];           // แท็กหมวด Popular
   newTags?: string[];              // แท็กหมวด New & Noteworthy (ถ้าไม่ส่งมา จะถือว่าไม่มีหมวดนี้)
   activeTag?: string | null;
-  onSelectTag?: (tag: string | null) => void;
+  onSelectTag?: (tag: string) => void;
   className?: string;
 };
 
@@ -15,7 +15,7 @@ const TagPanel: React.FC<TagPanelProps> = ({
   title = "Tags",
   popularTags,
   newTags,
-  activeTag = null,
+  activeTag = '',
   onSelectTag,
   className = "",
 }) => {
@@ -23,7 +23,7 @@ const TagPanel: React.FC<TagPanelProps> = ({
   const [activeGroup, setActiveGroup] = useState<TagGroup>("popular");
 
   const handleClick = (t: string) => {
-    onSelectTag?.(activeTag === t ? null : t);
+    onSelectTag?.(activeTag === t ? '' : t);
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -102,7 +102,7 @@ const TagPanel: React.FC<TagPanelProps> = ({
 
       {/* tags */}
       {filteredTags.length === 0 ? (
-        <p className="text-xs text-zinc-400">ไม่พบแท็กที่ตรงกับคำค้น</p>
+        <p className="text-xs text-zinc-400">Tag not found.</p>
       ) : (
         <div className="space-y-2" role="list">
           {filteredTags.map((t) => {

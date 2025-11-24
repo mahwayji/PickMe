@@ -8,7 +8,7 @@ export type Item = {
     title: string,
     description: string,
     tags: string[],
-    thumbnailId: string,
+    thumbnailMediaId: string,
     blocks: ItemBlock[],
     orderIndex: number,
     createdAt: Date,

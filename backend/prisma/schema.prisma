@@ -7,8 +7,8 @@ generator client {
 
 datasource db {
   provider = "mongodb"
-  // Connection URL has been moved to prisma.config.ts (see https://pris.ly/d/config-datasource)
-}
+  url   = env("DATABASE_URL")
+  }
 
 // ======================================================
 //  Enums

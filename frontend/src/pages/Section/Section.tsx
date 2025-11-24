@@ -58,6 +58,7 @@ const Section: React.FC = () => {
       }, [username,sectionId,userId]);
 
     console.log(data)
+    console.log(itemData)
     return (
         <div className="text-foreground min-h-screen text-center" >
             <SideBar />

@@ -63,7 +63,7 @@ export const ItemListView: React.FC<Props> = ({ itemData,ownerPageId,userId, isL
                     </div>   )}
                     <Link to={ITEM_EDIT_PATH.replace(':itemId', item ? item.id : '404')}>
                     <MediaImage
-                            mediaId={item?.thumbnailId} 
+                            mediaId={item?.thumbnailMediaId} 
                             className="w-full h-full object-cover"
                         />   
                         

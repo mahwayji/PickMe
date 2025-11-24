@@ -33,7 +33,7 @@ const SideBar: React.FC = () => {
     const isAuthenticated = user ? true: false;
 
     return (
-    <div className = "fixed top-0 left-0 min-w-[150px] w-[15%] h-[100%] flex flex-col shadow-sm" >
+    <div className = "fixed top-0 left-0 max-w-[300px] w-[15%] h-[100%] flex flex-col shadow-sm" >
         <div className = 'text-left p-4 text-5xl font-italianno'>PickMe</div>
         <Link to ={BASE_PATH} 
         className = 'px-5 py-2 flex items-center justify-start gap-2 hover:bg-zinc-400'
@@ -42,12 +42,12 @@ const SideBar: React.FC = () => {
             Home
         </Link>
 
-        <Link to ={BASE_PATH} 
+        {/* <Link to ={BASE_PATH} 
         className = 'px-5 py-2 flex items-center justify-start gap-2 hover:bg-zinc-400'
         >
             <Search size = {16}/>
             Search
-        </Link>
+        </Link> */}
 
         {
         isAuthenticated &&
@@ -78,7 +78,7 @@ const SideBar: React.FC = () => {
             </Link>
         } 
 
-        <div className="absolute bottom-0 p-4">
+        <div className="mt-auto text-left p-4">
             <ThemeToggle />
         </div>
     </div>

@@ -28,8 +28,7 @@ export function MediaImage({ mediaId, ...props }: MediaImageProps) {
   useEffect(() => {
     getUrlById(mediaId, 'image').then(setUrl);
 
-  }, []);
-
+  }, [mediaId]);
   return <img src={url} {...props} />;
 }
 
