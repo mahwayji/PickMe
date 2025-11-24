@@ -39,11 +39,28 @@ export class ItemsController {
     @UploadedFile() thumbnail?: Express.Multer.File,
     @Body() body?: any,
   ) {
+    let tags: string[] | undefined = undefined
 
-    const tags =
-      typeof body?.tags === 'string'
-        ? JSON.parse(body.tags)
-        : body?.tags
+    if (Array.isArray(body?.tags)) {
+      tags = body.tags
+    } else if (typeof body?.tags === 'string') {
+      const raw = body.tags.trim()
+
+      if (raw.startsWith('[') || raw.startsWith('"')) {
+        try {
+          const parsed = JSON.parse(raw)
+          if (Array.isArray(parsed)) {
+            tags = parsed
+          } else if (typeof parsed === 'string') {
+            tags = [parsed]
+          }
+        } catch {
+          tags = [raw]
+        }
+      } else {
+        tags = [raw]
+      }
+    }
 
     const normalizedBody = {
       ...body,
