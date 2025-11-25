@@ -66,7 +66,11 @@ export const ItemListView: React.FC<Props> = ({ itemData,ownerPageId,userId, isL
                         <MediaImage
                                 mediaId={item?.thumbnailMediaId} 
                                 className="w-full h-full object-cover"
-                            />              
+                            />      
+                            <div className="text-sm font-semibold">
+                                {item.title.length < 25 ? item.title : item.title.slice(0,25) + '...'}
+                            </div>
+
                     </Link>
                 </Card>
                 

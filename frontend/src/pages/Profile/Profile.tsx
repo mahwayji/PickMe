@@ -13,6 +13,7 @@ import Loading from '../Loading';
 import { CreateSectionForm } from '@/components/Section/components/Form/CreateSectionForm';
 import { EditSectionForm } from '@/components/Section/components/Form/EditSectionForm';
 import { SectionView } from '@/components/Section/SectionView';
+import Footer from '@/components/ui/Footer';
 
 const Profile: React.FC = () => {
 
@@ -73,7 +74,7 @@ const Profile: React.FC = () => {
     if (username) fetchProfile();
     if (username) fetchSection();
     setIsLoading(false);
-  }, [data]);
+  }, [openEditUserDialog]);
   
   if(data === null) return(
     <NotFound />
@@ -85,16 +86,16 @@ const Profile: React.FC = () => {
   else
   
   return (
-    <div className="flex flex-row text-foreground min-h-screen ml-[200px]" >
+    <div className="flex flex-row text-foreground ml-[200px] h-screen" >
       {/* Sidebar */}
       <SideBar />
-      <div className="flex flex-col items-start w-full overflow-y-auto">
+      <div className="flex flex-col items-start w-full overflow-y-auto h-full">
         <ProfileHeader
           data = {data} 
           isOwner = {(ownerPageId === userId)}
           handleEditUser={handleEditUser}
         />
-      <div className ='py-4'>
+      <div className ='mt-4 py-4'>
         {isCreateSectionFormOpen && userId &&(
         <CreateSectionForm 
           open= {isCreateSectionFormOpen} 
@@ -123,13 +124,16 @@ const Profile: React.FC = () => {
           setOpenCreateSectionForm={setIsCreateSectionFormOpen} 
           setOpenEditSectionForm={setIsEditSectionFormOpen} 
           setSectionIdToEdit={setSectionIdToEdit}/> 
-      </div>
+
+        <Footer />          
+        </div>
       </div>
       <EditUserForm
         open = {openEditUserDialog}
         setOpen={setOpenEditUserDialog}
         data = {data}
         setData = {setData} />
+
     </div>
     
   )

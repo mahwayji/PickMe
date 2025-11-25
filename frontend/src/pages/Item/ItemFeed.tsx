@@ -64,11 +64,11 @@ const ItemMedia = ({feed}: Props) => {
                 )
                     
             })}
-            
             <Separator className = 'py-2' />
             <div>
                 That's all of the items!
             </div>
+
         </div>
     )
 }
