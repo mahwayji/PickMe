@@ -22,6 +22,7 @@ export type ItemBlock =
         id: string;
         type: 'image';
         url: string;
+        mediaId: string
         alt?: string;
         caption?: string;
         aspectRatio?: string;
@@ -33,6 +34,7 @@ export type ItemBlock =
         id: string;
         type: 'video';
         url: string;
+        mediaId: string,
         controls?: boolean;
         muted?: boolean;
         width: number,

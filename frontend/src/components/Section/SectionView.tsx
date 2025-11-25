@@ -33,7 +33,7 @@ export const SectionView: React.FC<Props> = ({ sectionData, isLoading,ownerPageI
         
         (isLoading) ? <div> Loading... </div> :
         <div className="w-full flex justify-center">
-        <div className="grid grid-cols-3 gap-0.5 w-[900px] justify-center ">
+        <div className="grid grid-cols-3 gap-6 w-[900px] justify-center">
             {sectionData.map((section) => (
                 
                 <Card key={section.id} className="w-[300px] h-[400px] relative rounded-none border-none hover:shadow-md transition-shadow cursor-pointer group" >
@@ -52,7 +52,9 @@ export const SectionView: React.FC<Props> = ({ sectionData, isLoading,ownerPageI
                                 mediaId= {section.coverMediaId} 
                                 className="w-full h-full object-cover"
                             />
-                         
+                            <div className="text-left text-sm font-semibold">
+                                {section.title.length < 25 ? section.title : section.title.slice(0,25) + '...'}
+                            </div>
                     </Link>
 
                 </Card>

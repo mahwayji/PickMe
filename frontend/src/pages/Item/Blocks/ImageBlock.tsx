@@ -9,7 +9,7 @@ const ImageBlock = ({block}: Props) => {
         
     return (
         <div className = 'p-2'>
-            <MediaImage mediaId = {block.url} alt = {block.alt} className = 'block mx-auto max-h-[400px] w-auto' />
+            <MediaImage mediaId = {block.mediaId} alt = {block.alt} className = 'block mx-auto max-h-[400px] w-auto' />
         </div>
     )
 }

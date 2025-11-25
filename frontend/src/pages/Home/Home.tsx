@@ -8,12 +8,16 @@ import { toast } from 'sonner';
 import Loading from '../Loading';
 import ProfileSummaryCard from '@/components/Home/Home/ProfileSummaryCard';
 import TagPanel from '@/components/Home/Tags/TagPanel';
+import type { RootState } from '@/store/store';
+import { useSelector } from 'react-redux';
 
 const Home : React.FC= () => {
     const [feed, setFeed] = useState< Item[]>([]);
     const [loading, setLoading] = useState<boolean>(true)
     const [activeTag, setActiveTag] = React.useState<string>('');
     const [tags, setTags] = React.useState<string[]>([]);
+    const user = useSelector((state: RootState) => state.auth.user);
+    const isAuthenticated = user ? true: false;
 
     const getFeed = useCallback(async () => {
         try {
@@ -68,7 +72,7 @@ const Home : React.FC= () => {
             {/* Left column: sticky profile summary */}
             <div className="w-[25%]">
               <div className="sticky top-16">
-                <ProfileSummaryCard />
+                {isAuthenticated && <ProfileSummaryCard />}
               </div>
             </div>
 
